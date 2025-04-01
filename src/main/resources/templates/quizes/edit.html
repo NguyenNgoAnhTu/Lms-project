@@ -1,0 +1,344 @@
+<div class="container-fluid px-5 " style="flex: 1;">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0 text-center">Edit Quiz</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/quizes/edit/{id}(id=${quiz.id})}" th:object="${quiz}" method="post" class="needs-validation" novalidate>
+
+                <!-- Nhóm thông tin chung -->
+                <h5 class="text-primary">Quiz Information</h5>
+                <div class="row">
+                    <div class="col-md-6 ">
+                        <label for="quizName" class="form-label fw-bold">Quiz Name</label>
+                        <input type="text" id="quizName" th:field="*{name}" class="form-control" placeholder="Enter quiz name" required>
+                        <div class="invalid-feedback">Quiz name is required.</div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <label for="quizDescription" class="form-label fw-bold">Description</label>
+                        <textarea id="quizDescription" th:field="*{description}" class="form-control" placeholder="Enter quiz description" rows="1" required></textarea>
+                        <div class="invalid-feedback">Quiz description is required.</div>
+                    </div>
+                </div>
+
+                <!-- Nhóm thời gian -->
+                <h5 class="text-primary ">Schedule</h5>
+                <div class="row">
+                    <div class="col-md-6 ">
+                        <label for="startTime" class="form-label fw-bold">Start Time</label>
+                        <input type="datetime-local" id="startTime"
+                               th:value="${#temporals.format(quiz.startTime, 'yyyy-MM-dd''T''HH:mm')}"
+                               name="startTime" class="form-control" required>
+                        <div class="invalid-feedback">Start time is required.</div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <label for="endTime" class="form-label fw-bold">End Time</label>
+                        <input type="datetime-local" id="endTime"
+                               th:value="${#temporals.format(quiz.endTime, 'yyyy-MM-dd''T''HH:mm')}"
+                               name="endTime" class="form-control" required>
+                        <div class="invalid-feedback">End time is required.</div>
+                    </div>
+                </div>
+
+                <!-- Nhóm cài đặt Quiz -->
+                <h5 class="text-primary ">Quiz Settings</h5>
+                <div class="row">
+                    <div class="col-md-6 ">
+                        <label for="course" class="form-label fw-bold">Course</label>
+                        <select id="course" th:field="*{course}" class="form-select" required>
+                            <option value="" disabled>-- Select a Course --</option>
+                            <option th:each="course : ${courses}" th:value="${course.getId()}" th:text="${course.getName()}"></option>
+                        </select>
+                        <div class="invalid-feedback">Course is required.</div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <label for="attemptLimit" class="form-label fw-bold">Attempt Limit</label>
+                        <input type="number" id="attemptLimit" th:field="*{attemptLimit}" class="form-control" placeholder="Enter attempt limit" min="1" required>
+                        <div class="invalid-feedback">Attempt limit is required and must be at least 1.</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 ">
+                        <label for="quizType" class="form-label fw-bold">Quiz Type</label>
+                        <select id="quizType" th:field="*{quizCategory}" class="form-select" required>
+                            <option value="" disabled>-- Select Quiz Type --</option>
+                            <option value="EXAM">Exam</option>
+                            <option value="PRACTICE">Practice</option>
+                        </select>
+                        <div class="invalid-feedback">Quiz type is required.</div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <label for="createdBy" class="form-label fw-bold">Created By</label>
+                        <div id="createdBy" th:text="${user.username}" class="form-control-plaintext"></div>
+                        <input type="hidden" th:field="*{createdBy}" th:value="${user.id}" />
+                    </div>
+                </div>
+
+                <div class="">
+                    <h5 class="text-primary mb-2">Tags: </h5>
+                    <button type="button" class="btn  btn-secondary ms-2 " data-bs-toggle="modal" data-bs-target="#tagsModal">
+                        Manage Tags
+                    </button>
+                    <span id="selectedTagsCount" class="ms-2 text-muted"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end ">
+                    <button type="submit" class="btn btn-primary btn-md">Update</button>
+                    <a th:href="@{/quizes}" class="btn btn-secondary btn-md ms-3">Back to List</a>
+                </div>
+            </form>
+
+            <!-- Thông báo lỗi / thành công -->
+            <div th:if="${error}" class="alert alert-danger " th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success " th:text="${success}"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Định nghĩa validation rules
+    const VALIDATION_RULES = {
+        quizName: {
+            minLength: 5,
+            maxLength: 100,
+            pattern: /^[a-zA-Z0-9\s\-_]+$/
+        },
+        description: {
+            minLength: 10,
+            maxLength: 500
+        },
+        attemptLimit: {
+            min: 1,
+            max: 100
+        }
+    };
+
+    // Hàm validate form
+    function validateForm() {
+        let isValid = true;
+
+        // Validate Quiz Name
+        const quizName = document.getElementById('quizName');
+        if (quizName.value.length < VALIDATION_RULES.quizName.minLength) {
+            showError(quizName, `Quiz name must be at least ${VALIDATION_RULES.quizName.minLength} characters`);
+            isValid = false;
+        } else if (quizName.value.length > VALIDATION_RULES.quizName.maxLength) {
+            showError(quizName, `Quiz name cannot exceed ${VALIDATION_RULES.quizName.maxLength} characters`);
+            isValid = false;
+        } else if (!VALIDATION_RULES.quizName.pattern.test(quizName.value)) {
+            showError(quizName, 'Quiz name can only contain letters, numbers, spaces, hyphens and underscores');
+            isValid = false;
+        }
+
+        // Validate Description
+        const description = document.getElementById('quizDescription');
+        if (description.value.length < VALIDATION_RULES.description.minLength) {
+            showError(description, `Description must be at least ${VALIDATION_RULES.description.minLength} characters`);
+            isValid = false;
+        } else if (description.value.length > VALIDATION_RULES.description.maxLength) {
+            showError(description, `Description cannot exceed ${VALIDATION_RULES.description.maxLength} characters`);
+            isValid = false;
+        }
+
+        // Validate Date/Time
+        const startTime = new Date(document.getElementById('startTime').value);
+        const endTime = new Date(document.getElementById('endTime').value);
+        const now = new Date();
+
+        if (startTime < now) {
+            showError(document.getElementById('startTime'), 'Start time must be in the future');
+            isValid = false;
+        }
+
+        if (endTime <= startTime) {
+            showError(document.getElementById('endTime'), 'End time must be after start time');
+            isValid = false;
+        }
+
+        const minDuration = 15 * 60 * 1000; // 15 minutes
+        if (endTime - startTime < minDuration) {
+            showError(document.getElementById('endTime'), 'Quiz duration must be at least 15 minutes');
+            isValid = false;
+        }
+
+        // Validate Attempt Limit
+        const attemptLimit = parseInt(document.getElementById('attemptLimit').value);
+        if (isNaN(attemptLimit) || attemptLimit < VALIDATION_RULES.attemptLimit.min) {
+            showError(document.getElementById('attemptLimit'),
+                `Attempt limit must be at least ${VALIDATION_RULES.attemptLimit.min}`);
+            isValid = false;
+        } else if (attemptLimit > VALIDATION_RULES.attemptLimit.max) {
+            showError(document.getElementById('attemptLimit'),
+                `Attempt limit cannot exceed ${VALIDATION_RULES.attemptLimit.max}`);
+            isValid = false;
+        }
+
+        // Validate Course Selection
+        const course = document.getElementById('course');
+        if (!course.value) {
+            showError(course, 'Please select a course');
+            isValid = false;
+        }
+
+        // Validate Quiz Type
+        const quizType = document.getElementById('quizType');
+        if (!quizType.value) {
+            showError(quizType, 'Please select a quiz type');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Hàm hiển thị lỗi
+    function showError(input, message) {
+        // Remove existing error message if any
+        const existingError = input.parentElement.querySelector('.invalid-feedback');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Add new error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.style.color = 'red';
+        errorDiv.textContent = message;
+        input.parentElement.appendChild(errorDiv);
+
+        // Add invalid class to input
+        input.classList.add('is-invalid');
+    }
+
+    // Hàm xóa thông báo lỗi
+    function clearError(input) {
+        const errorDiv = input.parentElement.querySelector('.invalid-feedback');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+        input.classList.remove('is-invalid');
+    }
+
+    // Thêm event listeners khi document ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form.needs-validation');
+
+        // Add submit event listener
+        form.addEventListener('submit', function(event) {
+            if (!validateForm()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+
+        // Add input event listeners for real-time validation
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearError(this);
+            });
+
+            input.addEventListener('blur', function() {
+                validateForm();
+            });
+        });
+
+        // Special handling for datetime inputs
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+
+        [startTimeInput, endTimeInput].forEach(input => {
+            input.addEventListener('change', function() {
+                validateForm();
+            });
+        });
+
+        // Hàm để thiết lập giá trị minimum cho trường startTime
+        function setMinDateTime() {
+            const now = new Date();
+
+            // Format datetime-local value (YYYY-MM-DDThh:mm)
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            // Set min attribute cho input startTime
+            document.getElementById('startTime').min = minDateTime;
+        }
+
+        // Gọi hàm khi trang web được tải
+        setMinDateTime();
+
+        // Cập nhật min value mỗi phút
+        setInterval(setMinDateTime, 60000);
+
+        // Cập nhật min datetime cho endTime dựa trên startTime
+        startTimeInput.addEventListener('change', function() {
+            // Nếu startTime có giá trị, đặt min của endTime
+            if (startTimeInput.value) {
+                // Tính toán thời gian tối thiểu cho endTime (startTime + 15 phút)
+                const startDateTime = new Date(startTimeInput.value);
+                startDateTime.setMinutes(startDateTime.getMinutes() + 15);
+
+                const year = startDateTime.getFullYear();
+                const month = String(startDateTime.getMonth() + 1).padStart(2, '0');
+                const day = String(startDateTime.getDate()).padStart(2, '0');
+                const hours = String(startDateTime.getHours()).padStart(2, '0');
+                const minutes = String(startDateTime.getMinutes()).padStart(2, '0');
+
+                const minEndDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                endTimeInput.min = minEndDateTime;
+
+                // Kiểm tra xem endTime hiện tại có hợp lệ không
+                const currentEndTime = new Date(endTimeInput.value);
+                if (currentEndTime < startDateTime) {
+                    // Nếu endTime hiện tại nhỏ hơn startTime + 15 phút, tự động cập nhật endTime
+                    endTimeInput.value = minEndDateTime;
+                }
+            }
+        });
+
+        // Kiểm tra lúc trang tải xong để đảm bảo endTime hợp lệ
+        if (startTimeInput.value) {
+            const startDateTime = new Date(startTimeInput.value);
+            startDateTime.setMinutes(startDateTime.getMinutes() + 15);
+
+            const year = startDateTime.getFullYear();
+            const month = String(startDateTime.getMonth() + 1).padStart(2, '0');
+            const day = String(startDateTime.getDate()).padStart(2, '0');
+            const hours = String(startDateTime.getHours()).padStart(2, '0');
+            const minutes = String(startDateTime.getMinutes()).padStart(2, '0');
+
+            const minEndDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            endTimeInput.min = minEndDateTime;
+
+            // Kiểm tra xem endTime hiện tại có hợp lệ không
+            const currentEndTime = new Date(endTimeInput.value);
+            if (currentEndTime < startDateTime) {
+                // Nếu endTime hiện tại nhỏ hơn startTime + 15 phút, tự động cập nhật endTime
+                endTimeInput.value = minEndDateTime;
+            }
+        }
+    });
+</script>
+
+<style>
+    .col-md-6{
+        padding: 10px 20px;
+    }
+
+    /* Tùy chỉnh style cho các input bị disable */
+    input:disabled {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+    h5 {
+        margin-bottom: 0px;
+    }
+</style>
