@@ -12,7 +12,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
-<div class="px-5 flex-grow-1">
+<div class="container-fluid px-5 flex-grow-1">
     <h1 class="text-center">Quizes</h1>
     <div>
         <div>
@@ -39,11 +39,11 @@
 
                         <!-- Tag Filter -->
                         <div class="dropdown" style="width: 200px;">
-                            <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="tagFilterButton" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="tagFilterButton" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-tags me-1"></i>
-                                Select Tags
+                                <span id="tagFilterText">Select Tags</span>
                             </button>
-                            <ul class="dropdown-menu w-100 p-0">
+                            <ul class="dropdown-menu w-100 shadow" aria-labelledby="tagFilterButton">
                                 <!-- Search box for tags -->
                                 <li class="px-3 py-2 border-bottom">
                                     <div class="input-group">
@@ -56,26 +56,26 @@
                                     </div>
                                 </li>
                                 <!-- Tags list -->
-                                <div class="tags-scroll px-3 py-2">
-                                    <div id="tagsContainer">
-                                        <div class="form-check mb-2" th:each="tag : ${tags}">
-                                            <input class="form-check-input tag-checkbox"
-                                                   type="checkbox"
-                                                   th:id="'tag-' + ${tag.id}"
-                                                   th:value="${tag.id}"
-                                                   onchange="handleTagChange()"
-                                                   th:checked="${param.tags != null and param.tags.contains(tag.id.toString())}">
-                                            <label class="form-check-label" th:for="'tag-' + ${tag.id}" th:text="${tag.name}"></label>
+                                <li>
+                                    <div class="tags-scroll px-3 py-2">
+                                        <div id="tagsContainer">
+                                            <!-- Tags will be loaded here -->
+                                            <div class="text-center py-3">
+                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <span class="ms-2">Loading tags...</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </li>
                                 <!-- Footer -->
                                 <li class="px-3 py-2 border-top bg-light d-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" onclick="clearAllTags()">
-                                        <i class="me-1"></i>Clear
+                                        <i class="bi bi-x-circle me-1"></i>Clear
                                     </button>
                                     <button type="button" class="btn btn-sm btn-primary flex-fill" onclick="applyTagFilter()">
-                                        <i class="me-1"></i>Apply
+                                        <i class="bi bi-check-circle me-1"></i>Apply
                                     </button>
                                 </li>
                             </ul>
@@ -87,8 +87,6 @@
 
                         <!-- Hidden input for tags -->
                         <input type="hidden" name="tags" id="selectedTags">
-
-
 
                         <button class="btn btn-outline-secondary" type="submit" onclick="return prepareSearch()">
                             <i class="bi bi-search"></i>
@@ -115,12 +113,22 @@
                     <button class="btn btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#importModal">
                         <i class="bi bi-upload"></i> Import
                     </button>
-                    <a href="/quizes/admin/dashboard" class="btn btn-outline-dark me-2">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
-
                     <a href="/quizes/create" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Create New Quiz
+                    </a>
+                </th:block>
+
+                <!-- Dashboard buttons based on role -->
+                <th:block th:if="${isStudent}">
+                    <!-- Student Dashboard -->
+                    <a href="#" class="btn btn-outline-info me-2" id="studentDashboardBtn">
+                        <i class="bi bi-graph-up"></i> My Dashboard
+                    </a>
+                </th:block>
+                <th:block th:unless="${isStudent}">
+                    <!-- Admin Dashboard -->
+                    <a th:href="@{/quizes/admin/dashboard}" class="btn btn-outline-dark me-2">
+                        <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
                 </th:block>
             </div>
@@ -132,7 +140,7 @@
         </div>
         <div id="cardView" class="row">
             <div th:each="quize : ${quizes}" class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm" th:data-quiz-id="${quize.getId()}">
                     <div class="card-body">
                         <h5 class="card-title" th:text="${quize.getName()}"></h5>
                         <p class="card-text text-muted" th:text="${quize.getDescription()}"></p>
@@ -164,8 +172,8 @@
                                 <a th:href="@{'/quizes/detail/' + ${quize.getId()}}" class="btn btn-outline-primary btn-sm" title="Detail">
                                     <i class="bi bi-info-circle"></i>
                                 </a>
-                                <a th:href="@{'/quizes/delete/' + ${quize.getId()}}" class="btn btn-outline-danger btn-sm"
-                                   onclick="return confirm('Are you sure?')" title="Delete">
+                                <a href="#" class="btn btn-outline-danger btn-sm"
+                                   th:onclick="'deleteQuiz(' + ${quize.getId()} + '); return false;'" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </th:block>
@@ -207,7 +215,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="quize, iterStat : ${quizes}">
+                <tr th:data-quiz-id="${quize.getId()}" th:each="quize, iterStat : ${quizes}">
                     <td class="text-center" th:text="${iterStat.index + 1}"></td>
                     <td th:text="${quize.getName()}"></td>
                     <td th:text="${quize.getDescription()}"></td>
@@ -238,8 +246,8 @@
                             <a th:href="@{'/quizes/detail/' + ${quize.getId()}}" class="btn btn-outline-secondary btn-sm" title="Detail">
                                 <i class="bi bi-info-circle"></i>
                             </a>
-                            <a th:href="@{'/quizes/delete/' + ${quize.getId()}}" class="btn btn-outline-danger btn-sm"
-                               onclick="return confirm('Are you sure?')" title="Delete">
+                            <a href="#" class="btn btn-outline-danger btn-sm"
+                               th:onclick="'deleteQuiz(' + ${quize.getId()} + '); return false;'" title="Delete">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </th:block>
@@ -316,11 +324,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Information about the template -->
-                    <!--                    <div class="mb-3">-->
-                    <!--                        <p>Download the Excel template before uploading your file:</p>-->
-                    <!--                        <a href="/templates/roles.xlsx" class="btn btn-link" download>Download Role Template</a>-->
-                    <!--                    </div>-->
                     <!-- Import form -->
                     <form method="post" enctype="multipart/form-data" th:action="@{/quizes/modal}">
                         <div>
@@ -351,7 +354,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="file" class="form-label">Choose Excel File</label>
+                            <label for="file" class="form-label">Choose File</label>
                             <input type="file" name="file" id="file" class="form-control" required>
                             <p class="mt-2 text-success" th:if="${chosenFile}">
                                 Chosen file: <span th:text="${chosenFile}"></span>
@@ -359,6 +362,9 @@
                         </div>
                         <button type="submit" name="action" value="import" class="btn btn-primary">Import</button>
                         <button type="submit" name="action" value="review" class="btn btn-primary">Review file</button>
+                        <a href="/quizes/download-template" class="btn btn-primary">
+                            <i class="bi bi-download"></i> Download Template
+                        </a>
                     </form>
                     <div th:if="${error}" class="alert alert-danger">
                         <p th:text="${error}"></p>
@@ -388,13 +394,14 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Initialize all dropdowns with the new Bootstrap 5 syntax
+    var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl);
+    });
+
     let viewMode = localStorage.getItem("viewMode") || "table";
     updateView(viewMode);
 
@@ -404,65 +411,59 @@ document.addEventListener("DOMContentLoaded", function () {
         updateView(viewMode);
     });
 
-    // Cải thiện xử lý sự kiện cho dropdown
-    const dropdownMenu = document.querySelector('.dropdown-menu');
+    // Improved dropdown handling for tags
     const tagFilterButton = document.getElementById('tagFilterButton');
-
-    if (dropdownMenu) {
-        // Ngăn chặn tất cả các sự kiện click trong dropdown menu từ việc đóng dropdown
-        dropdownMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // Ngăn chặn các checkbox từ việc đóng dropdown
-        const checkboxes = dropdownMenu.querySelectorAll('.tag-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-    }
-
-    // Cải thiện cách hiển thị dropdown
     if (tagFilterButton) {
-        const tagDropdown = new bootstrap.Dropdown(tagFilterButton);
+        // Proper selection of dropdown menu
+        const dropdownMenu = tagFilterButton.nextElementSibling;
 
-        // Đặt click handler cho nút Apply để đóng dropdown sau khi áp dụng
-        document.querySelector('button[onclick="applyTagFilter()"]').addEventListener('click', function() {
-            // Thực hiện applyTagFilter trước
-            applyTagFilter();
-            // Sau đó đóng dropdown
-            tagDropdown.hide();
-        });
+        if (dropdownMenu) {
+            // Prevent clicks in dropdown from closing it
+            dropdownMenu.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'BUTTON') {
+                    e.stopPropagation();
+                }
+            });
 
-        // Đặt click handler cho nút Clear để không đóng dropdown
-        document.querySelector('button[onclick="clearAllTags()"]').addEventListener('click', function(e) {
-            e.stopPropagation();
-            clearAllTags();
-        });
-    }
+            // Fix checkbox click handling
+            const checkboxes = dropdownMenu.querySelectorAll('.tag-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    handleTagChange();
+                });
+            });
 
-    // Cải thiện tính năng tìm kiếm tag với debounce
-    const searchInput = document.getElementById('searchTags');
-    if (searchInput) {
-        // Sử dụng debounce để giảm số lượng request
-        let debounceTimer;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            const query = this.value.trim();
-
-            // Hiển thị "Đang tìm kiếm..." nếu query không rỗng
-            if (query.length > 0) {
-                document.getElementById('tagsContainer').innerHTML =
-                    '<div class="text-center py-3"><i class="bi bi-hourglass-split me-2"></i> Loading...</div>';
+            // Properly handle Apply and Clear buttons
+            const applyBtn = dropdownMenu.querySelector('button[onclick="applyTagFilter()"]');
+            if (applyBtn) {
+                // Replace onclick with clean event listener
+                applyBtn.removeAttribute('onclick');
+                applyBtn.addEventListener('click', function() {
+                    applyTagFilter();
+                });
             }
 
-            debounceTimer = setTimeout(() => searchTags(query), 300);
-        });
+            const clearBtn = dropdownMenu.querySelector('button[onclick="clearAllTags()"]');
+            if (clearBtn) {
+                // Replace onclick with clean event listener
+                clearBtn.removeAttribute('onclick');
+                clearBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clearAllTags();
+                });
+            }
+        }
     }
 
-    // Lưu trữ tất cả các tag để tìm kiếm cục bộ
-    window.allTags = [];
+    // Fix course dropdown if present
+    const courseDropdown = document.getElementById('course');
+    if (courseDropdown) {
+        courseDropdown.addEventListener('change', function() {
+            // Submit form when course selection changes
+            document.getElementById('searchForm').submit();
+        });
+    }
 
     // Tải tất cả tag ban đầu
     fetchAllTags();
@@ -477,6 +478,20 @@ document.addEventListener("DOMContentLoaded", function () {
             clearAllFilters();
         });
     }
+
+    // Restore the student dashboard button functionality
+    const studentDashboardBtn = document.getElementById('studentDashboardBtn');
+    const currentUserId = document.getElementById('currentUserId');
+
+    if (studentDashboardBtn && currentUserId) {
+        studentDashboardBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = `/quizes/dashboard/${currentUserId.value}`;
+        });
+    }
+
+    // Khởi tạo chức năng tìm kiếm tag
+    initializeTagSearch();
 });
 
 // Lấy tất cả tag từ server và lưu trữ
@@ -484,81 +499,72 @@ function fetchAllTags() {
     fetch('/quizes/tags', {
         headers: {
             'Accept': 'application/json'
-        }
+        },
+        credentials: 'same-origin' // Add credentials to handle authentication
     })
     .then(handleResponse)
     .then(tags => {
         window.allTags = Array.isArray(tags) ? tags : [tags];
-        // Không cần render lại, vì trang đã có tags
+        // Update the tags in the dropdown
+        const tagsContainer = document.getElementById('tagsContainer');
+        if (tagsContainer) {
+            renderTagsInContainer(tags);
+        }
     })
     .catch(error => {
         console.error('Failed to fetch tags:', error);
+        // Show error in the tags container if it exists
+        const tagsContainer = document.getElementById('tagsContainer');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = `
+                <div class="alert alert-danger mt-2">
+                    <i class="bi bi-exclamation-circle"></i> Failed to load tags.
+                    Please refresh the page or try again later.
+                </div>`;
+        }
     });
 }
 
-function searchTags() {
-    const query = document.getElementById('searchTags').value.trim();
+// Helper function to render tags in the container
+function renderTagsInContainer(tags, selectedTagIds = []) {
     const tagsContainer = document.getElementById('tagsContainer');
+    if (!tagsContainer) return;
 
-    // Show loading state
-    tagsContainer.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    tagsContainer.innerHTML = '';
 
-    // Fetch tags based on search query
-    fetch(`/quizes/tags/search?name=${encodeURIComponent(query)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(tags => {
-            tagsContainer.innerHTML = '';
-
-            if (!tags || tags.length === 0) {
-                tagsContainer.innerHTML = `
-                <div class="alert alert-info w-100">
-                    <i class="fas fa-info-circle me-2"></i>
-                    No tags found matching "${query}"
-                </div>`;
-                return;
-            }
-
-            // Lưu trữ trạng thái checked của các tag hiện tại
-            const checkedTags = new Set();
-            document.querySelectorAll('.tag-checkbox:checked').forEach(checkbox => {
-                checkedTags.add(checkbox.value);
-            });
-
-            tags.forEach(tag => {
-                if (tag && tag.id) {
-                    const sanitizedName = tag.name
-                        ? tag.name.replace(/[<>]/g, '')
-                        : 'Unnamed Tag';
-
-                    const isChecked = checkedTags.has(tag.id.toString());
-
-                    tagsContainer.innerHTML += `
-                    <div class="form-check mb-2">
-                        <input class="form-check-input tag-checkbox" type="checkbox"
-                               id="tag-${tag.id}" name="tagIds" value="${tag.id}"
-                               onchange="handleTagChange()"
-                               ${isChecked ? 'checked' : ''}>
-                        <label class="form-check-label" for="tag-${tag.id}">
-                            ${sanitizedName}
-                        </label>
-                    </div>`;
-                }
-            });
-            updateSelectedTagsText();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            tagsContainer.innerHTML = `
-            <div class="alert alert-danger w-100">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                Unable to load tags. Please try refreshing the page.
+    if (!tags || tags.length === 0) {
+        tagsContainer.innerHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No tags found
             </div>`;
-        });
+        return;
+    }
+
+    // Lấy các tag đã chọn từ URL nếu không có selectedTagIds
+    if (!selectedTagIds.length) {
+        const urlParams = new URLSearchParams(window.location.search);
+        selectedTagIds = urlParams.getAll('tags');
+    }
+
+    tags.forEach(tag => {
+        if (tag && tag.id) {
+            const isChecked = selectedTagIds.includes(tag.id.toString());
+            tagsContainer.innerHTML += `
+                <div class="form-check mb-2">
+                    <input class="form-check-input tag-checkbox"
+                           type="checkbox"
+                           id="tag-${tag.id}"
+                           name="tagIds"
+                           value="${tag.id}"
+                           onchange="handleTagChange()"
+                           ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="tag-${tag.id}">${tag.name}</label>
+                </div>`;
+        }
+    });
+
+    // Cập nhật text hiển thị số lượng tag đã chọn
+    updateSelectedTagsText();
 }
 
 function handleResponse(response) {
@@ -628,14 +634,16 @@ function prepareSearch() {
 }
 
 function updateSelectedTagsText() {
-    const button = document.getElementById('tagFilterButton');
+    const tagFilterTextElement = document.getElementById('tagFilterText');
     const selectedTags = document.querySelectorAll('.tag-checkbox:checked');
     const selectedCount = selectedTags.length;
 
     if (selectedCount === 0) {
-        button.innerHTML = '<i class="bi bi-tags me-1"></i>Select Tags';
+        tagFilterTextElement.innerHTML = 'Select Tags';
+        tagFilterButton.querySelector('i').className = 'bi bi-tags me-1';
     } else {
-        button.innerHTML = `<i class="bi bi-tags-fill me-1"></i>${selectedCount} selected`;
+        tagFilterTextElement.innerHTML = `${selectedCount} selected`;
+        tagFilterButton.querySelector('i').className = 'bi bi-tags-fill me-1';
     }
 }
 
@@ -655,27 +663,219 @@ function updateView(mode) {
 }
 
 function clearAllFilters() {
-    // Xóa các giá trị trong form
+    // Xóa giá trị course
     document.getElementById('course').value = '';
-    document.getElementById('searchTags').value = '';
-    document.getElementById('selectedTags').value = '';
 
-    // Bỏ chọn tất cả các checkbox tag
+    // Xóa giá trị search tags và bỏ chọn tất cả các checkbox
+    document.getElementById('searchTags').value = '';
     document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
         checkbox.checked = false;
     });
 
-    // Cập nhật hiển thị text của button tag filter
+    // Cập nhật text của tag filter button
     updateSelectedTagsText();
 
-    // Xóa giá trị trong ô search
+    // Xóa giá trị trong ô search quiz
     const searchInput = document.querySelector('input[name="searchQuery"]');
     if (searchInput) {
         searchInput.value = '';
     }
 
+    // Xóa tất cả các input hidden của tags
+    document.querySelectorAll('input[name="tags"]').forEach(input => {
+        input.remove();
+    });
+
     // Submit form để reset lại trang với các giá trị đã xóa
     document.getElementById('searchForm').submit();
+}
+
+function initializeTagSearch() {
+    const searchInput = document.getElementById('searchTags');
+    if (searchInput) {
+        // Thêm debounce để tránh gọi API quá nhiều lần
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchTags(this.value);
+            }, 300); // Đợi 300ms sau khi người dùng ngừng gõ
+        });
+    }
+}
+
+// Cập nhật hàm searchTags để nhận giá trị tìm kiếm
+function searchTags(query) {
+    const tagsContainer = document.getElementById('tagsContainer');
+    if (!tagsContainer) return;
+
+    // Hiển thị trạng thái loading
+    tagsContainer.innerHTML = '<div class="text-center"><i class="bi bi-hourglass-split me-2"></i> Loading...</div>';
+
+    // Nếu không có query, lấy tất cả tags
+    if (!query || query.trim() === '') {
+        fetchAllTags();
+        return;
+    }
+
+    // Tìm kiếm tags dựa trên query
+    fetch(`/quizes/tags/search?name=${encodeURIComponent(query.trim())}`, {
+        headers: {
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(tags => {
+        // Lưu lại các tag đã chọn trước đó
+        const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
+
+        // Render kết quả tìm kiếm
+        renderTagsInContainer(tags, selectedTags);
+    })
+    .catch(error => {
+        console.error('Error searching tags:', error);
+        tagsContainer.innerHTML = `
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            Error searching tags. Please try again.
+        </div>`;
+    });
+}
+
+function deleteQuiz(quizId) {
+    if (confirm('Are you sure?')) {
+        fetch(`/quizes/delete/${quizId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            // Kiểm tra nếu response là redirect (thành công) hoặc JSON (lỗi)
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                return response.json().then(data => ({ isJson: true, data }));
+            } else {
+                return { isJson: false, status: response.status };
+            }
+        })
+        .then(result => {
+            if (!result.isJson || (result.isJson && result.data.success)) {
+                // Xóa thành công (redirect hoặc JSON success)
+                // Remove quiz from DOM
+                const quizElements = document.querySelectorAll(`[data-quiz-id="${quizId}"]`);
+                quizElements.forEach(element => element.remove());
+
+                // Show success toast
+                const toastHtml = `
+                    <div class="toast-container position-fixed top-0 start-0 p-3" style="z-index: 9999">
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header bg-success text-white">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                <strong class="me-auto">Success</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                Quiz has been successfully deleted
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Remove any existing toast
+                const existingToast = document.querySelector('.toast-container');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+
+                document.body.insertAdjacentHTML('beforeend', toastHtml);
+
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    const toast = document.querySelector('.toast-container .toast');
+                    if (toast) {
+                        const bsToast = new bootstrap.Toast(toast);
+                        bsToast.hide();
+                    }
+                }, 3000);
+            } else {
+                // Error case (JSON error response)
+                const toastHtml = `
+                    <div class="toast-container position-fixed top-0 start-0 p-3" style="z-index: 9999">
+                        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header bg-danger text-white">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <strong class="me-auto">Error</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                ${result.data.message || 'Unable to delete a quiz that already has assignment data.'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Remove any existing toast
+                const existingToast = document.querySelector('.toast-container');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+
+                document.body.insertAdjacentHTML('beforeend', toastHtml);
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    const toast = document.querySelector('.toast-container .toast');
+                    if (toast) {
+                        const bsToast = new bootstrap.Toast(toast);
+                        bsToast.hide();
+                    }
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting quiz:', error);
+            // Show error toast instead of alert
+            const toastHtml = `
+                <div class="toast-container position-fixed top-0 start-0 p-3" style="z-index: 9999">
+                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header bg-danger text-white">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong class="me-auto">Error</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            Error occurred while deleting quiz. Please try again later.
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove any existing toast
+            const existingToast = document.querySelector('.toast-container');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            document.body.insertAdjacentHTML('beforeend', toastHtml);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                const toast = document.querySelector('.toast-container .toast');
+                if (toast) {
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.hide();
+                }
+            }, 5000);
+        });
+    }
 }
 </script>
 
@@ -688,6 +888,17 @@ function clearAllFilters() {
     flex-wrap: wrap;
     gap: 4px;
     max-width: 100%;
+}
+
+/* Bootstrap dropdown fixes */
+.dropdown-menu {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.tags-scroll {
+    max-height: 250px;
+    overflow-y: auto;
 }
 
 /* Style cho badges */
@@ -849,3 +1060,21 @@ thead.table-light {
     background: white;
 }
 </style>
+
+<!-- Add back the hidden input for currentUserId -->
+<input type="hidden" id="currentUserId" th:value="${currentUserId}">
+
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let urlParams = new URLSearchParams(window.location.search);
+            let openModal = urlParams.get("openModal");
+
+            if (openModal) {
+                let modalElement = document.getElementById(openModal);
+                if (modalElement) {
+                    let modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                }
+            }
+        });
+    </script>

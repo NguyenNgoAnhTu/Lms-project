@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 
-<head th:replace="~{fragments :: common_header('Modules', '/style.css')}"></head>
+<head th:replace="~{fragments :: common_header('Edit Courses', null)}">
+</head>
 
 <body>
+<style>
+    .dropdown-toggle::after{
+        display: none !important;
+    }
+    .dropdown-item:hover{
+        cursor: pointer;
+    }
+</style>
 <div class="d-flex flex-column min-vh-100">
     <!-- Header -->
     <header th:replace="~{fragments :: header}"></header>
@@ -42,7 +51,7 @@
                     </div>
                     <form id="uploadMaterialForm" enctype="multipart/form-data">
                         <div class="modal-body">
-                            <input type="hidden" name="sectionId" id="sectionId">
+                            <input type="hidden" name="sectionId" class="sectionId">
                             <!-- File input -->
                             <div class="mb-3">
                                 <label for="materialFile" class="form-label">Upload File</label>
@@ -77,6 +86,93 @@
             </div>
         </div>
 
+        <!-- modal video -->
+        <div class="modal fade" id="uploadVideo" aria-labelledby="uploadVideoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadVideoLabel">Upload Material</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="uploadVideoForm">
+                        <div class="modal-body">
+                            <input type="hidden" name="sectionId" class="sectionId">
+                            <div class="mb-3">
+                                <label for="video" class="form-label">Video Url</label>
+                                <input type="url" class="form-control" name="video" required >
+                            </div>
+
+                            <!-- Material type -->
+                            <div class="mb-3">
+                                <label for="materialType" class="form-label">Material Type</label>
+                                <select class="form-select" name="materialType" required>
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="ASSIGNMENTS">Assignments</option>
+                                    <option value="LABS">Labs</option>
+                                    <option value="LECTURES">Lectures</option>
+                                    <option value="REFERENCES">References</option>
+                                    <option value="ASSESSMENTS">Assessments</option>
+                                </select>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label for="materialTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- modal ckeditor -->
+        <div class="modal fade" id="saveCKeditor" aria-labelledby="saveCKeditorLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="saveCKeditorLabel">Upload Material</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="saveCKeditorForm">
+                        <div class="modal-body">
+                            <input type="hidden" name="sectionId" class="sectionId">
+                            <div class="mb-3">
+                                <label for="editor"></label>
+                                <textarea id="editor" name="content"></textarea>
+                            </div>
+
+                            <!-- Material type -->
+                            <div class="mb-3">
+                                <label for="materialType" class="form-label">Material Type</label>
+                                <select class="form-select" name="materialType" required>
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="ASSIGNMENTS">Assignments</option>
+                                    <option value="LABS">Labs</option>
+                                    <option value="LECTURES">Lectures</option>
+                                    <option value="REFERENCES">References</option>
+                                    <option value="ASSESSMENTS">Assessments</option>
+                                </select>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label for="materialTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         <nav>
             <div class="nav nav-tabs mb-4" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Details</button>
@@ -220,8 +316,15 @@
             <div class="tab-pane fade" id="nav-material" role="tabpanel" aria-labelledby="nav-material-tab" tabindex="0">
                 <div class="row my-4">
                     <!-- PDF Section -->
-                    <div class="col-lg-9" style="border: solid 1px #000">
-                        <div class="mx-auto" id="pdf-container" style=" overflow-y: auto; width: fit-content; height: 580px"></div>
+                    <div class="col-12 title-container mb-3">
+                        <h2></h2>
+                    </div>
+                    <div class="col-lg-9" id="screen-container" style="border: solid 1px #000">
+                        <div id="view-text-container" style="padding: 4px; max-width: 100%; max-height: 100%; overflow: auto;" class="d-none"></div>
+                        <div class="mx-auto d-none" id="pdf-container" style=" overflow-y: auto; width: fit-content; height: 580px"></div>
+                        <div id="view-video-container" class="d-none" style="margin-top: 16px;">
+                            <video id="video-player" class="video-js vjs-default-skin" controls></video>
+                        </div>
                     </div>
 
                     <!-- Module Section -->
@@ -231,20 +334,46 @@
                                 <h3 class="h5">Content</h3>
                             </div>
 
-                            <ul class="list-group list-group-flush" id="file-container">
+                            <ul class="list-group list-group-flush" id="file-container" style="max-height: 530px; overflow-y: auto;">
                                 <!-- Iterate through sections -->
                                 <li class="list-group-item" th:each="section : ${response}">
                                     <!-- Display section name -->
                                     <div class="section-item-container">
                                         <span class="section-name" th:text="${section.sectionName}"></span>
-                                        <span th:data-ids="${section.sectionId}" class="add-icon float-end" style="color: blue; cursor: pointer;"><i class="bi bi-plus-circle"></i></span>
+<!--                                        <span th:data-ids="${section.sectionId}" class="add-icon float-end" style="color: blue; cursor: pointer;">-->
+<!--                                            <i class="bi bi-plus-circle"></i>-->
+<!--                                        </span>-->
+                                        <div class="btn-group drop float-end">
+                                            <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="color: blue; cursor: pointer;">
+                                                <i class="bi bi-plus-circle"></i>
+                                            </span>
+                                            <ul class="dropdown-menu">
+                                                <li><span th:data-ids="${section.sectionId}" class="dropdown-item add-mate">Upload Material</span></li>
+                                                <li><span th:data-ids="${section.sectionId}" class="dropdown-item add-text">Edit Text</span></li>
+                                                <li><span th:data-ids="${section.sectionId}" class="dropdown-item add-video">Upload Video</span></li>
+                                            </ul>
+                                        </div>
                                     </div>
 
                                     <!-- Iterate through course materials -->
-                                    <ul class="ps-4" th:id="'section-' + ${section.sectionId} + '-materials'" th:data-id="${section.sectionId}">
-                                        <li class="pdf-link" th:each="material : ${section.courseMaterials}" th:data-url="${material.url}">
-                                            <!-- Display material title with a link -->
-                                            <a href="#" th:text="${material.title}"></a>
+                                    <ul class="ps-2" th:id="'section-' + ${section.sectionId} + '-materials'" th:data-id="${section.sectionId}" style="list-style-type: none;">
+                                        <li class="row-cols-2" th:each="material : ${section.courseMaterials}">
+                                            <!-- Display material -->
+                                            <span th:if="${#strings.equals(material.typ, 'DOCUMENT')}" th:data-url="${material.url}" th:data-id="${material.id}" th:data-title="${material.title}" class="pdf-link col-11">
+                                                <i style="color: blue" class="bi bi-filetype-pdf"></i>
+                                                <a href="#" th:text="${#strings.length(material.title) > 25 ? #strings.substring(material.title, 0, 22) + '...' : material.title}"></a>
+                                            </span>
+                                            <!-- display text -->
+                                            <span th:if="${#strings.equals(material.typ, 'TEXT')}" th:data-id="${material.id}" th:data-content="${material.content}" th:data-title="${material.title}" class="view-text col-11">
+                                                <i style="color: blue;" class="bi bi-file-text"></i>
+                                                <a href="#" th:text="${#strings.length(material.title) > 25 ? #strings.substring(material.title, 0, 22) + '...' : material.title}"></a>
+                                            </span>
+                                            <!-- video -->
+                                            <span th:if="${#strings.equals(material.typ, 'VIDEO')}" th:data-id="${material.id}" th:data-url="${material.url}" th:data-title="${material.title}" th:data-mateid="${material.materialId}" class="view-video col-11">
+                                                <i style="color: blue;" class="bi bi-play-circle"></i>
+                                                <a href="#" th:text="${#strings.length(material.title) > 25 ? #strings.substring(material.title, 0, 22) + '...' : material.title}"></a>
+                                            </span>
+                                            <span th:data-id="${material.id}" style="color: red; cursor: pointer" class="delete-material col-1 float-end"><i style="margin-left: 6px;" class="bi bi-trash"></i></span>
                                         </li>
                                     </ul>
                                 </li>
@@ -252,6 +381,10 @@
                         </div>
                     </div>
                 </div>
+<!--                <div class="mb-3">-->
+<!--                    <label for="editor"></label>-->
+<!--                    <textarea id="editor" name="content"></textarea>-->
+<!--                </div>-->
             </div>
         </div>
     </div>
@@ -260,6 +393,80 @@
     <footer th:replace="~{fragments :: footer}"></footer>
 </div>
 <script th:replace="~{fragments :: scripts}"></script>
+<!-- Load CKEditor 4 -->
+<script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
+<script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/videojs-youtube@3.0.0/dist/Youtube.min.js"></script>
+<!-- Khởi tạo CKEditor 4 -->
+<script>
+    CKEDITOR.replace('editor', {
+        filebrowserImageUploadUrl: '/materials/upload-image',
+        filebrowserUploadMethod: 'form',
+        height: 350,
+        toolbar: [
+            { name: 'document', items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
+            { name: 'clipboard', items: ['Undo', 'Redo', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord'] },
+            { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll'] },
+            { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv'] },
+            { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak'] },
+            { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+            { name: 'colors', items: ['TextColor', 'BGColor'] },
+            { name: 'tools', items: ['Maximize', 'ShowBlocks'] },
+            { name: 'about', items: ['About'] }
+        ],
+        language: 'vi',
+    });
+
+
+    CKEDITOR.on("dialogDefinition", function (ev) {
+        let dialog = ev.data.definition.dialog;
+        dialog.on("show", function () {
+            let saveCKeditorModal = bootstrap.Modal.getInstance(document.getElementById("saveCKeditor"));
+            if (saveCKeditorModal) {
+                saveCKeditorModal.hide(); // Ẩn modal chính
+            }
+        });
+
+        dialog.on("hide", function () {
+            let saveCKeditorModal = new bootstrap.Modal(document.getElementById("saveCKeditor"));
+            saveCKeditorModal.show(); // Hiển thị lại modal chính sau khi đóng modal CKEditor
+        });
+
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+        switch (dialogName){
+            case "image":
+                dialogDefinition.removeContents('Link');
+                dialogDefinition.removeContents('advanced');
+                break;
+        }
+    });
+
+
+
+
+    $('#saveContent').on('click', function () {
+        var content = CKEDITOR.instances.editor.getData(); // Lấy nội dung CKEditor
+        console.log(content);
+        // $.ajax({
+        //     url: '/save-content',
+        //     type: 'POST',
+        //     contentType: 'application/json',
+        //     data: JSON.stringify({ content: content }),
+        //     success: function (response) {
+        //         alert('Lưu thành công!');
+        //     },
+        //     error: function (xhr) {
+        //         alert('Lỗi khi lưu: ' + xhr.responseText);
+        //     }
+        // });
+    });
+
+</script>
+
+
 <script>
     $(document).ready(function () {
 
@@ -485,24 +692,114 @@
             }
         }
 
-// 📌 Xử lý sự kiện khi click vào link tải PDF
-        $('.pdf-link').on('click', function (e) {
+        // 📌 Xử lý sự kiện khi click vào link tải PDF
+
+        $(document).on('click', '.pdf-link', function (e) {
             e.preventDefault();
+            console.log("render pdf");
+
+            $('.title-container h2').html($(this).data('title'));
+
             const url = $(this).data("url");
+            console.log(url);
+            if (window.videoPlayer) {
+                window.videoPlayer.pause();
+            }
 
-            // 📌 Kiểm tra nếu PDF đã tải trước đó, reset scroll để tránh lỗi
-            pdfContainer.scrollTop = 0;
+            $('#view-text-container').removeClass('d-block').addClass('d-none');
+            $('#view-video-container').removeClass('d-block').addClass('d-none');
+            $('#pdf-container').removeClass('d-none').addClass('d-block');
+            initializePDF(url); // Gọi hàm để load PDF
+        });
 
-            initializePDF(url);
+
+        $(document).on('click', '.view-text', function (e){
+            e.preventDefault();
+            console.log("view text");
+
+            const content = $(this).data("content");
+            console.log(content);
+            $('.title-container h2').html($(this).data('title'));
+
+            if (window.videoPlayer) {
+                window.videoPlayer.pause();
+            }
+            // show container
+            $('#pdf-container').removeClass('d-block').addClass('d-none');
+            $('#view-video-container').removeClass('d-block').addClass('d-none');
+            $('#view-text-container').removeClass('d-none').addClass('d-block').html(content);
+        })
+
+        $(document).on('click', '.view-video', function (e) {
+            e.preventDefault();
+
+            const url = $(this).data("url");  // URL có thể là ID hoặc link đầy đủ
+            const idUrl = $(this).data('mateid');
+            console.log("id url: ", idUrl);
+            console.log("Video URL:", url);
+
+            $('.title-container h2').html($(this).data('title'));
+
+            // Ẩn các container khác, hiển thị video
+            $('#pdf-container').removeClass('d-block').addClass('d-none');
+            $('#view-text-container').removeClass('d-block').addClass('d-none');
+            $('#view-video-container').removeClass('d-none').addClass('d-block');
+
+            // Set up the player if it doesn't exist
+            if (!window.videoPlayer) {
+                window.videoPlayer = videojs('video-player', {
+                    techOrder: ['youtube', 'html5'],
+                    controls: true,
+                    autoplay: false,  // You may want to set this to false initially
+                    fluid: true,
+                    sources: [{
+                        type: "video/youtube",
+                        src: `https://www.youtube.com/watch?v=${idUrl}`
+                    }]
+                });
+            } else {
+                window.videoPlayer.src({
+                    type: "video/youtube",
+                    src: `https://www.youtube.com/watch?v=${idUrl}`
+                });
+                window.videoPlayer.play();
+            }
         });
 
         /// add material
         // Handle click on the "Add" icon
-        $('.add-icon').on('click', function () {
+        // $('.add-icon').on('click', function () {
+        //     const sectionId = $(this).data('ids'); // Get the section ID from the data attribute
+        //     $('#sectionId').val(sectionId); // Set the hidden input value for the modal
+        //     //$('#uploadMaterial').modal('show'); // Show the modal
+        //     $('#saveCKeditor').modal('show');
+        //
+        //
+        // });
+
+        $('.add-mate').on('click', function () {
             const sectionId = $(this).data('ids'); // Get the section ID from the data attribute
-            $('#sectionId').val(sectionId); // Set the hidden input value for the modal
+            $('.sectionId').val(sectionId); // Set the hidden input value for the modal
             $('#uploadMaterial').modal('show'); // Show the modal
+            //$('#saveCKeditor').modal('show');
         });
+
+        $('.add-text').on('click', function () {
+            const sectionId = $(this).data('ids'); // Get the section ID from the data attribute
+            $('.sectionId').val(sectionId); // Set the hidden input value for the modal
+            //$('#uploadMaterial').modal('show'); // Show the modal
+            $('#saveCKeditor').modal('show');
+        });
+
+        $('.add-video').on('click', function (){
+            const sectionId = $(this).data('ids');
+            $('.sectionId').val(sectionId);
+            $("#uploadVideo").modal('show');
+        })
+
+        function truncateText(text, maxLength = 25) {
+            return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
+        }
 
         // Handle form submission
         $('#uploadMaterialForm').on('submit', function (e) {
@@ -510,13 +807,11 @@
             const formData = new FormData(this); // Collect all form data
 
             const secID = formData.get("sectionId");
-            // console.log(secID);
-            //
-            // formData.forEach((value, key) => {
-            //     console.log(key + ": " + value);
-            // });
+            console.log(secID);
 
-
+            formData.forEach((value, key) => {
+                console.log(key + ": " + value);
+            });
 
             $.ajax({
                 url: '/materials/upload', // Replace with your backend endpoint
@@ -528,17 +823,21 @@
                     console.log(response);
                     alert('Material uploaded successfully!');
                     $('#uploadMaterial').modal('hide'); // Close the modal
+                    $('#uploadMaterial form')[0].reset();
                     // Optionally update the UI dynamically
                     const sectionContainer = $(`#section-${secID}-materials`);
-
                     // Dynamically append the new material to the appropriate section
                     const newMaterialHTML = `
-            <li class="pdf-link" data-url="${response.url}">
-                <a href="#">${response.title}</a>
-            </li>
-        `;
-
+                          <li class="row-cols-2">
+                               <span data-url="${response.url}" data-id="${response.id}" data-title="${response.title}" class="pdf-link col-11">
+                                    <i style="color: blue" class="bi bi-filetype-pdf"></i>
+                                    <a href="#">${truncateText(response.title)}</a>
+                               </span>
+                               <span data-id="${response.id}" style="color: red; cursor: pointer" class="delete-material col-1 float-end"><i style="margin-left: 6px;" class="bi bi-trash"></i></span>
+                         </li>
+                    `;
                     // Append the new material to the section
+                    console.log(newMaterialHTML);
                     sectionContainer.append(newMaterialHTML);
                 },
                 error: function (xhr) {
@@ -546,7 +845,122 @@
                 }
             });
         });
+
+        $(document).on("click", ".delete-material", function () {
+            let liElement = $(this).closest("li");  // Lấy phần tử <li> chứa tài liệu
+            const materialId = $(this).data("id");
+            console.log(materialId);
+
+            if (confirm("Bạn có chắc muốn xóa tài liệu này?")) {
+                $.ajax({
+                    url: "/course-materials/delete/" + materialId,
+                    type: "DELETE",
+                    success: function (response) {
+                        liElement.remove();  // Xóa tài liệu khỏi giao diện
+                        alert("Tài liệu đã được xóa!");
+                    },
+                    error: function (xhr) {
+                        alert("Lỗi khi xóa: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+
+        // save ckeditor content
+        $('#saveCKeditorForm').on('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Cập nhật nội dung CKEditor vào textarea
+            for (let instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+            const formData = new FormData(this); // Collect all form data
+
+            const secID = formData.get("sectionId");
+            console.log(secID);
+
+            formData.forEach((value, key) => {
+                console.log(key + ": " + value);
+            });
+
+            $.ajax({
+                url: "/course-materials/upload-text",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    console.log(response);
+                    alert("Upload thành công!");
+                    $("#saveCKeditor").modal("hide"); // Ẩn modal sau khi gửi thành công
+                    $("#saveCKeditorForm")[0].reset(); // Reset form
+                    CKEDITOR.instances['editor'].setData(''); // Xóa nội dung CKEditor
+
+                    const sectionContainer = $(`#section-${secID}-materials`);
+                    // Dynamically append the new material to the appropriate section
+                    const newMaterialHTML = `
+                          <li class="row-cols-2">
+                               <span data-id="${response.id}" data-content='${response.content}' data-title="${response.title}" class="view-text col-11">
+                                    <i style="color: blue" class="bi bi-file-text"></i>
+                                    <a href="#">${truncateText(response.title)}</a>
+                               </span>
+                               <span data-id="${response.id}" style="color: red; cursor: pointer" class="delete-material col-1 float-end"><i style="margin-left: 6px;" class="bi bi-trash"></i></span>
+                         </li>
+                    `;
+                    console.log(newMaterialHTML);
+                    sectionContainer.append(newMaterialHTML);
+                },
+                error: function (xhr) {
+                    alert("Lỗi khi upload: " + xhr.responseText);
+                }
+            })
+        });
+
+        $('#uploadVideoForm').on('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+            const formData = new FormData(this); // Collect all form data
+
+            const secID = formData.get("sectionId");
+            console.log(secID);
+
+            formData.forEach((value, key) => {
+                console.log(key + ": " + value);
+            });
+
+            $.ajax({
+                url: "/course-materials/upload-lecture",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    console.log(response);
+                    alert("Upload thành công!");
+                    $('#uploadVideo').modal('hide'); // Close the modal
+                    $('#uploadVideo form')[0].reset();
+
+                    const sectionContainer = $(`#section-${secID}-materials`);
+                    // Dynamically append the new material to the appropriate section
+                    const newMaterialHTML = `
+                          <li class="row-cols-2">
+                               <span data-id="${response.id}" data-url="${response.url}" data-mateid="${response.materialId}" data-title="${response.title}" class="view-video col-11">
+                                    <i style="color: blue" class="bi bi-play-circle"></i>
+                                    <a href="#">${truncateText(response.title)}</a>
+                               </span>
+                               <span data-id="${response.id}" style="color: red; cursor: pointer" class="delete-material col-1 float-end"><i style="margin-left: 6px;" class="bi bi-trash"></i></span>
+                         </li>
+                    `;
+                    console.log(newMaterialHTML);
+                    sectionContainer.append(newMaterialHTML);
+                },
+                error: function (xhr) {
+                    alert("Lỗi khi upload: " + xhr.responseText);
+                }
+            })
+        });
     });
+
+
 </script>
 
 </body>

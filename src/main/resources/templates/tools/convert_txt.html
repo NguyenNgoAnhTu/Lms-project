@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,9 +41,13 @@
         <a class="nav-link" href="/tools/generate_exam">Generate Exam</a>
       </li>
     </ul>
-
+    <div></div>
+    <a th:href="@{/quizes}" class="btn btn-outline-primary btn-sm position-absolute mt-3">
+      <i class="bi bi-arrow-left-short"></i> Back
+    </a>
     <h1 class="text-center">Paste Content for Word Files</h1>
     <p class="text-center">Enter the number of files and paste the content below for each file.</p>
+    </div>
 
     <!-- Input for Number of Files -->
     <div class="mb-4">
@@ -52,12 +56,7 @@
     </div>
 
     <!-- Button to Generate Text Areas -->
-    <div class="d-flex gap-2 justify-content-center mt-3">
-      <button id="generateFields" class="btn btn-outline-primary btn-lg mb-4">Generate Fields</button>
-      <a href="instruction.pdf" class="btn btn-info btn-lg mb-4" download>
-        <i class="bi bi-download"></i> Download Material
-      </a>
-    </div>
+    <button id="generateFields" class="btn btn-outline-primary mb-4">Generate Fields</button>
 
     <!-- Dynamic Text Areas for Pasting Content -->
     <form id="contentForm" method="POST" enctype="multipart/form-data" th:action="@{/tools/upload_txt}">

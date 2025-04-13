@@ -19,7 +19,7 @@ public class AIService {
     @Value("${ai.token}")
     private String TOKEN;
 
-    @Value("${ai.model}")
+    @Value("${ai.models}")
     private String MODEL;
 
     @Value("${ai.username}")

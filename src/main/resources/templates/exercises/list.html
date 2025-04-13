@@ -1,24 +1,574 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Exercises List</title>
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <!-- Bootstrap Icons CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
     <style>
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #toggleView {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            min-width: 120px;
+            max-width: 200px;
+        }
+
+        #tagContainer {
+            max-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-x: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
         /* Sử dụng table-bordered để có đường viền giữa các cột */
         table.table-bordered th,
         table.table-bordered td {
             border: 1px solid #dee2e6;
         }
+
         /* Dòng tiêu đề với màu xanh nhạt */
         table.table-bordered thead tr {
             background-color: #e3f2fd; /* Màu xanh nhạt */
             color: #000;
         }
+
+        .btn-outline-search {
+            border: 2px solid #0d6efd;
+            background-color: transparent;
+            color: #0d6efd;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-search:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: transparent !important;
+            color: red !important;
+            border-color: red !important;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-danger:hover {
+            background-color: red !important;
+            color: white !important;
+        }
+
+        .clear-btn {
+            background-color: transparent;
+            border: 1px solid #ccc;
+            color: #000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .clear-btn:hover {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        /* Alert CSS */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .custom-alert {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .alert-message {
+            flex-grow: 1;
+            margin-right: 12px;
+        }
+
+        .alert-close {
+            background: transparent;
+            border: none;
+            color: inherit;
+            padding: 0;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .col-md-6.d-flex .btn {
+            height: 38px;
+            position: relative;
+            top: -10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .col-md-6.d-flex a.btn {
+            text-decoration: none;
+        }
+
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .page-link {
+            color: #007bff;
+        }
+
+        .card {
+            padding-bottom: 10px !important;
+            padding-right: 10px !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .card:hover {
+            box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .card .d-flex {
+            margin-top: auto;
+            padding-bottom: 10px;
+            padding-right: 10px;
+        }
+
+        .card-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4em;
+            max-height: calc(1.4em * 2);
+        }
+
+        .description {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4em;
+            max-height: calc(1.4em * 2);
+        }
+
+        table {
+            table-layout: auto !important;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            vertical-align: middle;
+            height: auto;
+            padding: 8px;
+            word-break: normal !important;
+            white-space: nowrap !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+            max-width: 300px;
+        }
+
+        tr {
+            height: auto !important;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            width: 20%;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+            width: auto !important;
+            min-width: 20%;
+            max-width: 40%;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        th:nth-child(4), td:nth-child(4) {
+            width: 10%;
+        }
+
+        th:nth-child(5), td:nth-child(5) {
+            width: 40%;
+        }
+
+        th:nth-child(6), td:nth-child(6) {
+            width: 15%;
+        }
+
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .btn-close {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
+        .alert {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .toggle-details {
+            font-weight: 500;
+            color: #856404;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-details i {
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-details[aria-expanded="true"] i {
+            transform: rotate(180deg);
+        }
+
+        .warning-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .warning-list li {
+            background-color: #fff9e6;
+            border-left: 4px solid #ffd700;
+            color: #8b6914;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(255, 215, 0, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .warning-list li:hover {
+            transform: translateX(5px);
+            background-color: #fff5d4;
+            box-shadow: 0 3px 8px rgba(255, 215, 0, 0.2);
+        }
+
+        .warning-details {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff9e6;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #ffd700;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -48%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .warning-details.active {
+            display: block;
+        }
+
+        .warning-details h3 {
+            color: #8b6914;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .warning-details p {
+            color: #5c4a1d;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .warning-details .font-weight-bold {
+            color: #8b6914;
+        }
+
+        .warning-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+        }
+
+        .warning-overlay.active {
+            display: block;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #8b6914;
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.2s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-button:hover {
+            background-color: #fff5d4;
+            color: #8b6914;
+            transform: rotate(90deg);
+        }
+
+        #warningDetails {
+            background-color: #fff9e6;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .card.card-body {
+            border: none;
+            padding: 0;
+            background: transparent;
+        }
+
+        /* Footer của modal */
+        .modal-footer {
+            border-top: 2px solid #ddd;
+            border-radius: 0 0 10px 10px;
+            background-color: #f8f9fa;
+        }
+
+
+        /*Delete Notification*/
+        #deleteSuccessToast {
+            min-width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #e8f5e9;
+            color: #333;
+            animation: slideIn 0.3s ease-in-out;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .toast-body {
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffca2c;
+            color: #664d03;
+        }
+
+        .tag-dropdown {
+            position: relative;
+        }
+
+        .tag-dropdown .dropdown-menu {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, .15);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .15);
+        }
+
+        .tag-dropdown .form-check {
+            padding: 8px 12px;
+            margin: 0;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .tag-dropdown .form-check:hover {
+            background-color: #f8f9fa;
+        }
+
+        .tag-dropdown .form-check-input:checked + .form-check-label {
+            font-weight: 500;
+        }
+
+        .badge {
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin: 4px; /* Tăng khoảng cách giữa các badge */
+            display: inline-block; /* Giúp badge không bị dính vào nhau */
+        }
+
+        /* Màu xanh lá nhạt */
+        .bg-dark {
+            background-color: #b5e7a0 !important; /* Xanh lá nhạt */
+            color: #155724 !important; /* Chữ xanh đậm */
+        }
+
+        /* Màu xanh lá hơi xám */
+        .bg-secondary {
+            background-color: #d4edda !important; /* Xanh lá pastel */
+            color: #155724 !important;
+        }
+
+        /* Nút toggle */
+        #toggleTags {
+            cursor: pointer;
+            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background-color: #a3cfbb !important; /* Xanh lá dịu */
+            color: #155724 !important;
+            border: none;
+        }
+
+        #toggleTags:hover {
+            background-color: #8bc5a3 !important; /* Xanh lá hơi đậm khi hover */
+        }
+        #toggleView {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            min-width: 120px;
+            max-width: 200px;
+        }
+
     </style>
 </head>
 <body>
@@ -27,97 +577,353 @@
     <!-- Header -->
     <div th:replace="~{fragments :: header}" class="sticky-top"></div>
 
+    <!--Import -->
+    <div class="alert-container">
+        <div th:if="${duplicateMessage}" class="custom-alert alert-warning" role="alert" id="duplicateAlert">
+            <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+            <span class="alert-message" th:utext="${duplicateMessage}"></span>
+            <button type="button" class="alert-close" onclick="closeAlert('duplicateAlert')">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+
+        <!--        <div th:if="${editSuccess}" class="custom-alert alert-success" role="alert" id="editSuccessAlert">&ndash;&gt;-->
+        <!--            <i class="bi bi-check-circle-fill alert-icon"></i>-->
+        <!--            <span class="alert-message" th:text="${deletedSuccess}">Success message</span>-->
+        <!--            <button type="button" class="alert-close" onclick="closeAlert('successAlert')">-->
+        <!--                <i class="bi bi-x"></i>-->
+        <!--            </button>-->
+        <!--        </div>-->
+
+        <!--        Success Alert-->
+        <!--        <div th:if="${successMessage}" class="custom-alert alert-success" role="alert" id="successAlert">-->
+        <!--            <i class="bi bi-check-circle-fill alert-icon"></i>-->
+        <!--            <span class="alert-message" th:text="${successMessage}">Success message</span>-->
+        <!--            <button type="button" class="alert-close" onclick="closeAlert('successAlert')">-->
+        <!--                <i class="bi bi-x"></i>-->
+        <!--            </button>-->
+        <!--        </div>-->
+        <!--        &lt;!&ndash; &lt;!&ndash; Error Alert &ndash;&gt;&ndash;&gt;-->
+        <!--        <div th:if="${error}" class="custom-alert alert-danger" role="alert" id="errorAlert">-->
+        <!--            <i class="bi bi-exclamation-circle-fill alert-icon"></i>-->
+        <!--            <span class="alert-message" th:text="${error}">Error message</span>-->
+        <!--            <button type="button" class="alert-close" onclick="closeAlert('errorAlert')">-->
+        <!--                <i class="bi bi-x"></i>-->
+        <!--            </button>-->
+        <!--        </div>-->
+    </div>
+    <!-- Modal Thông Báo -->
+    <div class="modal fade" id="importResultModal" tabindex="-1" aria-labelledby="importResultModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importResultModalLabel">Import Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Thông báo thành công -->
+                    <div th:if="${success}" class="alert alert-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span th:text="${success}">Import successful!</span>
+                    </div>
+
+                    <!-- Thông báo cảnh báo -->
+                    <div th:if="${warningList != null and not #lists.isEmpty(warningList)}">
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>Some data contains errors, please check the details!</span>
+                            <button class="btn btn-link toggle-details" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#warningDetails">
+                                View Details <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+
+                        <div class="collapse" id="warningDetails">
+                            <div class="card card-body">
+                                <ul class="warning-list">
+                                    <li th:each="warning, stat : ${warningList}"
+                                        th:onclick="'showDetails(' + ${stat.index} + ')'"
+                                        th:data-index="${stat.index}">
+                                        <span th:text="${warning}"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="warning-overlay" id="overlay"></div>
+                        <div th:each="warning, stat : ${warningList}"
+                             th:id="'details-' + ${stat.index}"
+                             class="warning-details">
+                            <button class="close-button" th:onclick="'closeDetails(' + ${stat.index} + ')'">×</button>
+                            <h3>Warning Details</h3>
+                            <!--                            <p th:text="${'Lỗi ở dòng ' + (stat.index + 1) + ':'}" class="mt-2"></p>-->
+                            <p th:text="${warning}" class="mt-2"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Main Content -->
-    <div class="flex-grow-1 container mt-5">
+    <div class="flex-grow-1 container-fluid mt-5">
         <div class="px-5">
             <!-- Title -->
             <h1 class="text-center mb-4">Exercises</h1>
-
             <!-- Combined Filter and Toolbar Section -->
-            <div class="row mb-4 align-items-center">
-                <form id="filterForm" class="col-md-6" method="get" action="/exercises">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="languageFilter" class="form-label">Language</label>
-                            <select id="languageFilter" name="language" class="form-select">
-                                <option value="">All Languages</option>
-                                <option th:each="lang : ${languages}"
-                                        th:value="${lang.id}"
-                                        th:text="${lang.language}"
-                                        th:selected="${lang.id == currentLanguage}">
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="levelFilter" class="form-label">Difficulty</label>
-                            <select id="levelFilter" name="level" class="form-select">
-                                <option value="" th:selected="${currentLevel == null or currentLevel == ''}">All Levels</option>
-                                <option value="EASY" th:selected="${currentLevel == 'EASY'}">Easy</option>
-                                <option value="MEDIUM" th:selected="${currentLevel == 'MEDIUM'}">Medium</option>
-                                <option value="HARD" th:selected="${currentLevel == 'HARD'}">Hard</option>
-                            </select>
+            <div class="container-fluid mt-4">
+                <div class="row gx-2 align-items-center mb-3">
+                    <!-- Search Bar and Filters -->
+                    <div class="col-md-6">
+                        <div class="row gx-2 align-items-center">
+                            <!-- Search Input -->
+                            <div class="col-9">
+                                <form id="filterForm" method="get" action="/exercises" class="row g-3">
+                                    <input type="hidden" id="currentPage" name="page">
+                                    <!-- Search Input -->
+                                    <div class="col-12">
+                                        <label for="searchInput" class="form-label fw-semibold text-muted mb-1">Search
+                                            by Title</label>
+                                        <div class="input-group">
+                                            <input type="text" id="searchInput" name="title"
+                                                   class="form-control shadow-sm border-1"
+                                                   placeholder="Search by title..." th:value="${paramTitle}">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-search me-1"></i> Search
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary ms-2"
+                                                    onclick="clearFilters()">
+                                                <i class="bi bi-x-circle me-1"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Filters Row -->
+                                    <div class="col-12 mt-2">
+                                        <div class="row g-3">
+                                            <!-- Language Filter -->
+                                            <div class="col-md-4">
+                                                <label for="languageFilter"
+                                                       class="form-label fw-semibold text-muted mb-1">Language</label>
+                                                <select id="languageFilter" name="language"
+                                                        class="form-select shadow-sm border-0"
+                                                        onchange="this.form.submit()">
+                                                    <option value="" th:selected="${currentLanguage == null}">All
+                                                        Languages
+                                                    </option>
+                                                    <option th:each="lang : ${languages}"
+                                                            th:value="${lang.id}"
+                                                            th:text="${lang.language}"
+                                                            th:selected="${lang.id == currentLanguage}">
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Difficulty Filter -->
+                                            <div class="col-md-4">
+                                                <label for="levelFilter" class="form-label fw-semibold text-muted mb-1">Difficulty</label>
+                                                <select id="levelFilter" name="level"
+                                                        class="form-select shadow-sm border-0"
+                                                        onchange="this.form.submit()">
+                                                    <option value=""
+                                                            th:selected="${currentLevel == null or currentLevel == ''}">
+                                                        All Levels
+                                                    </option>
+                                                    <option value="EASY" th:selected="${currentLevel == 'EASY'}">Easy
+                                                    </option>
+                                                    <option value="MEDIUM" th:selected="${currentLevel == 'MEDIUM'}">
+                                                        Medium
+                                                    </option>
+                                                    <option value="HARD" th:selected="${currentLevel == 'HARD'}">Hard
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Tag Filter -->
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-muted mb-1">Tags</label>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="tagDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Select Tags
+                                                    </button>
+                                                    <div class="dropdown-menu p-2" style="max-height: 350px; overflow-y: auto; width: 100%;">
+                                                        <!-- 🔍 Thanh tìm kiếm -->
+                                                        <div class="input-group mb-2">
+                                                            <input type="text" class="form-control" id="tagSearch" placeholder="Search tags...">
+                                                        </div>
+                                                        <!-- ✅ Danh sách tag -->
+                                                        <div class="d-flex flex-column gap-2" id="tagList">
+                                                            <div th:each="tag : ${tags}" class="form-check">
+                                                                <input class="form-check-input tag-checkbox" type="checkbox" th:id="'tag-' + ${tag.id}" name="tags" th:value="${tag.id}" th:checked="${selectedTags != null and selectedTags.contains(tag.id)}">
+                                                                <label class="form-check-label" th:for="'tag-' + ${tag.id}" th:text="${tag.tag}"></label>
+                                                            </div>
+                                                        </div>
+                                                        <!-- 🔘 Nút Apply Filter -->
+                                                        <button type="submit" class="btn btn-success w-100 mt-2">Apply Filter</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </form>
-                <!-- Toolbar: Nút Add và Delete -->
-                <div class="col-md-6 d-flex justify-content-end">
-                    <a href="/exercises/create" class="btn btn-primary me-2">
-                        <i class="bi bi-plus-circle"></i> Add exercise
-                    </a>
-                    <button class="btn btn-danger">
-                        <i class="bi bi-trash"></i> Delete
-                    </button>
+
+                    <!-- Buttons: Import, Export, Print, Add, Delete -->
+                    <div class="col-md-6 d-flex flex-column align-items-end">
+                        <div class="d-flex justify-content-end align-items-center mt-5">
+                            <!-- Import Button (Opens Modal) -->
+                            <button class="btn btn-outline-secondary me-2" data-bs-toggle="modal"
+                                    data-bs-target="#importModal">
+                                <i class="bi bi-upload me-1"></i> Import
+                            </button>
+                            <!-- Export Button -->
+                            <a href="/exercises/export" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export
+                            </a>
+                            <!-- Print Button -->
+                            <a href="/exercises/print" class="btn btn-outline-secondary me-2" target="_blank">
+                                <i class="bi bi-printer me-1"></i> Print
+                            </a>
+                            <!-- Add Button -->
+                            <a href="/exercises/create" class="btn btn-primary me-2">
+                                <i class="bi bi-plus-circle me-1"></i> Add
+                            </a>
+                            <!-- Delete Button -->
+                            <button id="deleteSelected" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Delete
+                            </button>
+                        </div>
+
+                        <!-- Switch to Table View Button -->
+                        <div class="col-md-6 d-flex flex-column align-items-end">
+                            <div class="d-flex justify-content-end align-items-center mt-5">
+                                <!-- Button Dashboard -->
+                                <a href="/exercises/new-dashboard" class="btn btn-outline-primary btn-sm border">
+                                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                                </a>
+                                <!-- Button Duplicate -->
+                                <a href="/exercises/check-duplicates"
+                                   class="btn btn-outline-primary btn-sm border ms-2">
+                                    <i class="bi bi-files me-2"></i> Duplicate
+                                </a>
+                                <!-- Button Switch view card -->
+                                <button id="toggleView" class="btn btn-primary btn-sm ms-2">
+                                    <i class="bi bi-table"></i> Switch to Table View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!-- Switch to Table View Button -->
+                <!--                <div class="col-md-12 text-end mt-3">-->
+                <!--                    <button id="toggleView" class="btn btn-primary btn-sm">-->
+                <!--                        <i class="bi bi-table"></i> Switch to Table View-->
+                <!--                    </button>-->
+                <!--                </div>-->
+
+
+                <!-- Import Modal -->
+                <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importModalLabel">Import Excel File</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Template Import -->
+                                <div class="mb-3">
+                                    <p>Download the Excel template before uploading your file:</p>
+                                    <a href="https://drive.usercontent.google.com/u/0/uc?id=1ukHSnAmlcFE_vShkOAG9-jRoLs5_Rmlx&export=download"
+                                       class="btn btn-link" download>Download Exercise Template</a>
+                                </div>
+                                <!-- Form Upload -->
+                                <form id="UploadForm" action="/exercises/import" method="post"
+                                      enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="file" class="form-label">Choose Excel File:</label>
+                                        <input type="file" name="file" id="file" class="form-control"
+                                               accept=".xlsx, .xls" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-upload"></i> Upload
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Table -->
-            <div class="table-responsive">
+            <!-- Table View-->
+            <div id="tableView" class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <thead>
                     <tr>
-                        <th scope="col" class="text-center" style="width: 5%;">
-                            <label>
-                                <input type="checkbox" />
-                            </label>
+                        <th class="text-center">
+                            <input type="checkbox" id="selectAll"/>
                         </th>
-                        <th scope="col" style="width: 20%;">Title</th>
-                        <th scope="col" class="text-center" style="width: 10%;">Language</th>
-                        <th scope="col" class="text-center" style="width: 10%;">Difficulty</th>
-                        <th scope="col" style="width: 40%;">Description</th>
-                        <th scope="col" class="text-center" style="width: 15%;">Action</th>
+                        <th style="width: 20%;">Title</th>
+                        <th class="text-center" style="width: 10%;">Language</th>
+                        <th class="text-center" style="width: 10%;">Difficulty</th>
+                        <th style="width: 30%;">Description</th>
+                        <th style="width: 10%;">Tag</th>
+                        <th class="text-center" style="width: 15%;">Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="exercise : ${exercises}">
+                    <tr th:each="exercise : ${exercises}" th:attr="data-id=${exercise.id}">
                         <td class="text-center">
-                            <label>
-                                <input type="checkbox" />
-                            </label>
+                            <input type="checkbox" class="selectItem"/>
                         </td>
-                        <td th:text="${exercise.name}"></td>
+                        <td class="table-title" th:text="${exercise.name}"
+                            th:attr="data-fulltext=${exercise.name}"></td>
                         <td class="text-center" th:text="${exercise.language.language}">Language</td>
                         <td class="text-center">
-              <span th:class="${'badge ' + (exercise.level.name() == 'HARD' ? 'bg-danger' : (exercise.level.name() == 'MEDIUM' ? 'bg-warning' : 'bg-success'))}" th:text="${exercise.level}">
-              </span>
+                <span th:class="${'badge ' + (exercise.level.name() == 'HARD' ? 'bg-danger' :
+                         (exercise.level.name() == 'MEDIUM' ? 'bg-warning' : 'bg-success'))}"
+                      th:text="${exercise.level}">
+                </span>
                         </td>
-
-                        <td th:text="${exercise.description}">
-                            Description comes here...
+                        <td>
+                            <div class="description" th:text="${exercise.description}"></div>
+                        </td>
+                        <td>
+                            <div id="tagContainer"
+                                 style="max-width: 200px; overflow-x: auto; white-space: nowrap; display: flex;">
+                                 <span th:each="tag, iterStat : ${exercise.exerciseCategories}"
+                                       th:text="${tag.category.tag}"
+                                       th:classappend="${iterStat.index >= 2} ? 'd-none extra-tag'"
+                                       class="badge bg-dark text-light me-2">
+                                 </span>
+                                <span th:if="${#lists.size(exercise.exerciseCategories) > 2}"
+                                      id="toggleTags" class="badge bg-secondary text-light"
+                                      role="button" onclick="toggleTags()">...</span>
+                            </div>
                         </td>
                         <td class="text-center">
-                            <a th:href="@{'/judgement/code_space/' + ${exercise.id}}" class="btn btn-outline-primary btn-sm me-1" title="Info">
-                                <i class="bi bi-info-circle"></i>
+                            <a th:href="@{'/judgement/practice/code_space/' + ${exercise.id}}"
+                               class="btn btn-outline-primary btn-sm" title="Information">
+                                <i class="bi bi-file-text"></i>
                             </a>
-                            <a th:href="@{'/exercises/edit/' + ${exercise.id}}"
-                               class="btn btn-outline-primary btn-sm me-1" title="Edit">
+                            <a th:href="@{'/exercises/edit/' + ${exercise.id}}" class="btn btn-outline-primary btn-sm"
+                               title="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a th:href="@{'/exercises/delete/' + ${exercise.id}}"
-                               class="btn btn-outline-danger btn-sm"
-                               onclick="return confirm('Are you sure you want to delete this exercise?')"
-                               title="Delete">
-                                <i class="bi bi-trash"></i>
-                            </a>
+                            <button class="btn btn-danger btn-sm delete-btn"
+                                    th:attr="data-id=${exercise.id}"
+                                    title="Delete">
+                                <i class="bi bi-trash me-1"></i>
+                            </button>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(exercises)}">
@@ -127,67 +933,855 @@
                 </table>
             </div>
 
+            <!-- Card View -->
+            <div id="cardView" class="row row-cols-1 row-cols-md-3 g-3 mt-3" style="display: block;">
+                <div class="col" th:each="exercise : ${exercises}">
+                    <div class="card h-100 border-secondary shadow-sm d-flex flex-column">
+                        <div class="card-body flex-grow-1">
+                            <h5 class="card-title fw-bold text-primary" th:text="${exercise.name}">Exercise Title</h5>
+                            <p class="mb-1"><strong>Language:</strong>
+                                <span class="text-muted" th:text="${exercise.language.language}">Java</span>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Difficulty:</strong>
+                                <span th:class="${'badge ' + (exercise.level.name() == 'HARD' ? 'bg-danger' :
+                         (exercise.level.name() == 'MEDIUM' ? 'bg-warning' : 'bg-success'))}"
+                                      th:text="${exercise.level}">
+                                </span>
+                            </p>
+                            <p class="mb-2"><strong>Description:</strong>
+                                <span class="description" th:utext="${exercise.description}"></span>
+                            </p>
+                            <p class="mb-2"><strong>Tags:</strong>
+                                <span th:each="tag : ${exercise.exerciseCategories}"
+                                      class="badge bg-dark text-light me-2"
+                                      th:text="${tag.category.tag}">
+                                </span>
+
+                            </p>
+                        </div>
+
+                        <!-- Các nút được căn dưới cùng với khoảng cách 10px -->
+                        <div class="d-flex justify-content-end mt-auto" style="padding-bottom: 10px;">
+                            <a th:href="@{'/judgement/practice/code_space/' + ${exercise.id}}"
+                               class="btn btn-outline-primary btn-sm me-2">
+                                <i class="bi bi-file-text"></i>
+                            </a>
+                            <a th:href="@{'/exercises/edit/' + ${exercise.id}}"
+                               class="btn btn-outline-primary btn-sm me-2">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <button class="btn btn-danger btn-sm delete-btn"
+                                    th:attr="data-id=${exercise.id}"
+                                    title="Delete">
+                                <i class="bi bi-trash me-1">Delete</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(exercises)}"
+                     class="d-flex justify-content-center align-items-center"
+                     style="height: 50px; width: 100%;">
+                    <p>No exercises found.</p>
+                </div>
+
+            </div>
+
+
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-4" th:if="${totalPages >= 1}">
                 <nav>
                     <ul class="pagination">
-                        <!-- Nút First: chỉ hiển thị nếu có nhiều hơn 1 trang và không phải trang đầu -->
-                        <li class="page-item" th:if="${totalPages > 1 and currentPage > 0}">
-                            <a class="page-link"
-                               th:href="@{/exercises(page=0, language=${currentLanguage}, level=${currentLevel})}">
-                                First
-                            </a>
-                        </li>
-                        <!-- Nút Previous: chỉ hiển thị nếu có nhiều hơn 1 trang và không phải trang đầu -->
-                        <li class="page-item" th:if="${totalPages > 1 and currentPage > 0}">
-                            <a class="page-link"
-                               th:href="@{/exercises(page=${currentPage - 1}, language=${currentLanguage}, level=${currentLevel})}">
-                                Previous
-                            </a>
-                        </li>
-                        <!-- Danh sách số trang -->
-                        <li class="page-item"
-                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                            th:classappend="${i == currentPage} ? ' active'">
-                            <a class="page-link"
-                               th:href="@{/exercises(page=${i}, language=${currentLanguage}, level=${currentLevel})}"
-                               th:text="${i + 1}">Page</a>
-                        </li>
-                        <!-- Nút Next: chỉ hiển thị nếu có nhiều hơn 1 trang và chưa ở trang cuối -->
-                        <li class="page-item" th:if="${totalPages > 1 and currentPage < totalPages - 1}">
-                            <a class="page-link"
-                               th:href="@{/exercises(page=${currentPage + 1}, language=${currentLanguage}, level=${currentLevel})}">
-                                Next
-                            </a>
-                        </li>
-                        <!-- Nút Last: chỉ hiển thị nếu có nhiều hơn 1 trang và chưa ở trang cuối -->
-                        <li class="page-item" th:if="${totalPages > 1 and currentPage < totalPages - 1}">
-                            <a class="page-link"
-                               th:href="@{/exercises(page=${totalPages - 1}, language=${currentLanguage}, level=${currentLevel})}">
-                                Last
-                            </a>
-                        </li>
+                        <!-- Trường hợp chỉ có 1 trang -->
+                        <th:block th:if="${totalPages == 1}">
+                            <li class="page-item active">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                        </th:block>
+                        <!-- Trường hợp có nhiều hơn 1 trang -->
+                        <th:block th:if="${totalPages > 1}">
+                            <!-- Nút First (<<) -->
+                            <li class="page-item" th:if="${currentPage > 0}">
+                                <a class="page-link"
+                                   th:href="@{/exercises(page=0, language=${currentLanguage}, level=${currentLevel}, description=${paramDescription}, title=${paramTitle})}">«</a>
+                            </li>
+                            <!-- Nút Previous (<) -->
+                            <li class="page-item" th:if="${currentPage > 0}">
+                                <a class="page-link"
+                                   th:href="@{/exercises(page=${currentPage - 1}, language=${currentLanguage}, level=${currentLevel}, description=${paramDescription}, title=${paramTitle})}"><</a>
+                            </li>
+                            <!-- Trường hợp có từ 2 đến 3 trang: hiển thị tất cả số trang -->
+                            <th:block th:if="${totalPages <= 3}">
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:classappend="${i == currentPage} ? 'active'">
+                                    <a class="page-link"
+                                       th:href="@{/exercises(page=${i}, language=${currentLanguage}, level=${currentLevel}, title=${paramTitle}, description=${paramDescription})}"
+                                       th:text="${i + 1}">Page</a>
+                                </li>
+                            </th:block>
+                            <!-- Trường hợp có nhiều hơn 3 trang: giữ logic hiện tại -->
+                            <th:block th:if="${totalPages > 3}">
+                                <th:block th:with="isNearStart=${currentPage == 0},
+                          isNearEnd=${currentPage >= totalPages - 3},
+                          startPage=${isNearStart ? 0 : (isNearEnd ? totalPages - 3 : currentPage)},
+                          startPage=${T(java.lang.Math).max(0, startPage)},
+                          endPage=${T(java.lang.Math).min(startPage + 2, totalPages - 1)}">
+                                    <!-- Trang đầu tiên (chỉ hiển thị nếu ở gần cuối) -->
+                                    <li class="page-item" th:if="${isNearEnd}"
+                                        th:classappend="${currentPage == 0} ? 'active'">
+                                        <a class="page-link"
+                                           th:href="@{/exercises(page=0, language=${currentLanguage}, level=${currentLevel}, title=${paramTitle}, description=${paramDescription})}">1</a>
+                                    </li>
+                                    <!-- Dấu ba chấm nếu cần (trước các trang chính) -->
+                                    <li class="page-item disabled" th:if="${isNearEnd and startPage > 1}">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                    <!-- Hiển thị tối đa 3 trang từ startPage -->
+                                    <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                                        th:classappend="${i == currentPage} ? 'active'">
+                                        <a class="page-link"
+                                           th:href="@{/exercises(page=${i}, language=${currentLanguage}, level=${currentLevel}, title=${paramTitle}, description=${paramDescription})}"
+                                           th:text="${i + 1}">Page</a>
+                                    </li>
+                                    <!-- Dấu ba chấm nếu cần (sau các trang chính) -->
+                                    <li class="page-item disabled" th:if="${endPage < totalPages - 1 and !isNearEnd}">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                    <!-- Trang cuối cùng (hiển thị nếu không ở gần cuối) -->
+                                    <li class="page-item" th:if="${endPage < totalPages - 1 and !isNearEnd}"
+                                        th:classappend="${currentPage == totalPages - 1} ? 'active'">
+                                        <a class="page-link"
+                                           th:href="@{/exercises(page=${totalPages - 1}, language=${currentLanguage}, level=${currentLevel}, title=${paramTitle}, description=${paramDescription})}"
+                                           th:text="${totalPages}">Last</a>
+                                    </li>
+                                </th:block>
+                            </th:block>
+                            <!-- Nút Next (>) -->
+                            <li class="page-item" th:if="${currentPage < totalPages - 1}">
+                                <a class="page-link"
+                                   th:href="@{/exercises(page=${currentPage + 1}, language=${currentLanguage}, level=${currentLevel}, description=${paramDescription}, title=${paramTitle})}">></a>
+                            </li>
+                            <!-- Nút Last (>>) -->
+                            <li class="page-item" th:if="${currentPage < totalPages - 1}">
+                                <a class="page-link"
+                                   th:href="@{/exercises(page=${totalPages - 1}, language=${currentLanguage}, level=${currentLevel}, description=${paramDescription}, title=${paramTitle})}">»</a>
+                            </li>
+                        </th:block>
+                        <!-- Ô nhập số trang -->
+                        <div class="input-group input-group-sm ms-2 page-item" style="width: 130px;">
+                            <input type="text" class="form-control" id="pageInput"
+                                   th:attr="max=${totalPages}, min=1"
+                                   placeholder="Go to"
+                                   style="text-align: center;">
+                            <button class="btn btn-outline-primary" type="button" onclick="goToPage()">⩥</button>
+                        </div>
                     </ul>
                 </nav>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments :: footer}" class="mt-auto"></div>
 </div>
 
+
+<div id="deleteSuccessToast" class="toast position-fixed" role="alert"
+     aria-live="assertive" aria-atomic="true" style="z-index: 1050; display: none; top: 70px; right: 20px;">
+    <div class="toast-body text-center">
+        Deleted Successfully!
+    </div>
+</div>
+<!-- Alert hiển thị lỗi -->
+<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="successMessage" th:text="${successMessage}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments :: footer}" class="mt-auto"></div>
+<!-- Limit description in 20 words -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.description').forEach(desc => {
+            let text = desc.innerText;
+            if (text.length > 70) {
+                desc.innerText = text.substring(0, 70) + "...";
+            }
+        });
+    });
+
+</script>
+<!-- Switch card and table -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let viewMode = localStorage.getItem("viewMode") || "card"; // Mặc định Card View
+        updateView(viewMode);
+
+        document.getElementById("toggleView").addEventListener("click", function () {
+            viewMode = (viewMode === "card") ? "table" : "card";
+            localStorage.setItem("viewMode", viewMode);
+            updateView(viewMode);
+        });
+    });
+
+    function updateView(mode) {
+        let toggleButton = document.getElementById("toggleView");
+        let deleteSelectedButton = document.getElementById("deleteSelected");
+
+        if (mode === "card") {
+            // Card View
+            document.getElementById("cardView").style.display = "flex";
+            document.getElementById("tableView").style.display = "none";
+            toggleButton.innerHTML = '<i class="bi bi-table me-2"></i> Switch to Table View';
+            toggleButton.classList.replace("btn-secondary", "btn-primary");
+
+            // Ẩn nút Delete Selected ở toolbar
+            deleteSelectedButton.style.display = "none";
+        } else {
+            // Table View
+            document.getElementById("cardView").style.display = "none";
+            document.getElementById("tableView").style.display = "block";
+            toggleButton.innerHTML = '<i class="bi bi-grid me-2"></i> Switch to Card View';
+            toggleButton.classList.replace("btn-primary", "btn-secondary");
+
+            // Hiển thị lại nút Delete Selected ở toolbar
+            deleteSelectedButton.style.display = "inline-flex";
+        }
+    }
+</script>
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Khi có thay đổi trong các select của form, tự động submit form lọc
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterForm = document.getElementById('filterForm');
-        const selects = filterForm.querySelectorAll('select');
-        selects.forEach(function(select) {
-            select.addEventListener('change', function() {
-                filterForm.submit();
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectAllCheckbox = document.getElementById("selectAll");
+        const itemCheckboxes = document.querySelectorAll(".selectItem");
+        const deleteButton = document.getElementById("deleteSelected");
+        const toastElement = document.getElementById("deleteSuccessToast");
+        const importResultModal = new bootstrap.Modal(document.getElementById("importResultModal"));
+
+        // Kiểm tra nếu có thông báo thành công hoặc cảnh báo thì hiển thị modal
+        // if (document.querySelector(".alert-success") || document.querySelector(".alert-warning")) {
+        //     importResultModal.show();
+        // }
+
+        if (document.querySelector("#importResultModal .alert")) {
+            importResultModal.show();
+        }
+
+        function setupAlertAutoDismiss(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                setTimeout(() => {
+                    closeAlert(alertId);
+                }, 3000);
+            }
+        }
+
+        function closeAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => {
+                    alert.remove();
+                }, 2000);
+            }
+        }
+
+        // Setup auto-dismiss for both alerts
+        setupAlertAutoDismiss('successAlert');
+        setupAlertAutoDismiss('errorAlert');
+        setupAlertAutoDismiss('duplicateAlert');
+
+
+        // Chọn tất cả checkbox
+        selectAllCheckbox.addEventListener("change", function () {
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
             });
+        });
+
+        // Nếu bỏ chọn một checkbox, bỏ chọn "Select All"
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                selectAllCheckbox.checked = [...itemCheckboxes].every(cb => cb.checked);
+            });
+        });
+
+        // Xử lý khi nhấn nút "Delete Selected"
+        deleteButton.addEventListener("click", function () {
+            const selectedIds = [...document.querySelectorAll(".selectItem:checked")]
+                .map(cb => cb.closest("tr").getAttribute("data-id"));
+
+            if (selectedIds.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No exercises selected!',
+                    text: 'Please select at least one exercise to delete.',
+                    timer: 10000,  // Tự động đóng sau 10 giây
+                    timerProgressBar: true,  // Hiển thị thanh thời gian chạy
+                    showConfirmButton: false, // Ẩn nút "OK"
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will not be able to recover the deleted exercises!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete them!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/exercises/delete-batch', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ids: selectedIds})
+                    }).then(response => {
+                        if (response.ok) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "The selected exercises have been deleted.",
+                                timerProgressBar: true,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            response.json().then(data => {
+                                if (data.undeletables && data.undeletables.length > 0) {
+                                    const failedTitles = data.undeletables.join(", ");
+                                    Swal.fire({
+                                        icon: "warning",
+                                        title: "Some exercises could not be deleted!",
+                                        html: `<p>The following exercises are in assessments:</p><ul style="text-align:left">${data.undeletables.map(title => `<li>${title}</li>`).join("")}</ul>`,
+                                        timer: 15000,
+                                        timerProgressBar: true,
+                                        showConfirmButton: false
+                                    }).then(() => location.reload());
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Failed!",
+                                        text: "Failed to delete exercises.",
+                                        timerProgressBar: true,
+                                        timer: 10000,
+                                        showConfirmButton: false
+                                    });
+                                }
+                            });
+                        }
+                    }).catch(() => {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error!",
+                            text: "Something went wrong. Please try again later.",
+                            timer: 10000,  // Tự động đóng sau 10 giây
+                            timerProgressBar: true,  // Hiển thị thanh thời gian chạy
+                            showConfirmButton: false, // Ẩn nút "OK"
+                        });
+                    });
+                }
+            });
+        });
+
+        // Hiển thị thông báo
+        function showToast() {
+            toastElement.style.display = "block";
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const languageFilter = document.getElementById("languageFilter");
+        const levelFilter = document.getElementById("levelFilter");
+        const filterForm = document.getElementById("filterForm");
+
+        // Submit form khi thay đổi dropdown
+        languageFilter.addEventListener("change", function () {
+            filterForm.submit();
+        });
+
+        levelFilter.addEventListener("change", function () {
+            filterForm.submit();
+        });
+
+    });
+
+    // function clearFilters() {
+    //     document.getElementById("searchInput").value = "";
+    //     document.getElementById("languageFilter").value = "";
+    //     document.getElementById("levelFilter").value = "";
+    //     document.getElementById("tagList").value = "";
+    //     document.getElementById("filterForm").submit();
+    //
+    //
+    //     document.querySelectorAll('#tagFilter input[type="checkbox"]').forEach(checkbox => {
+    //         checkbox.checked = false;
+    //     })
+    //     // Submit the form without filters
+    //     document.getElementById('filterForm').submit();
+    // }
+
+    // Close popup when clicking outside
+    document.getElementById('overlay').addEventListener('click', function () {
+        document.querySelectorAll('.warning-details.active').forEach(detail => {
+            detail.classList.remove('active');
+        });
+        this.classList.remove('active');
+    });
+
+    // Initialize selected tags
+    updateSelectedTags();
+
+    function toggleTags() {
+        let extraTags = document.querySelectorAll('.extra-tag');
+        extraTags.forEach(tag => tag.classList.toggle('d-none'));
+
+        let toggleBtn = document.getElementById('toggleTags');
+        toggleBtn.textContent = toggleBtn.textContent === "..." ? "Show less" : "...";
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:if="${error}">
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: '[[${error}]]',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willClose: () => {
+            window.location.href = '/exercises';  // Điều hướng về trang mong muốn
+        }
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function closeAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        function setupAlertWithCooldown(alertId, cooldownMinutes = 10) {
+            const alert = document.getElementById(alertId);
+            if (!alert) return;
+
+            const lastShownKey = `lastShown_${alertId}`;
+            const now = Date.now();
+            const lastShown = localStorage.getItem(lastShownKey);
+            const cooldownMs = cooldownMinutes * 60 * 1000;
+
+            if (!lastShown || (now - lastShown >= cooldownMs)) {
+                alert.style.display = 'block';
+                localStorage.setItem(lastShownKey, now);
+
+                setTimeout(() => {
+                    closeAlert(alertId);
+                }, 2000);
+            } else {
+                alert.style.display = 'none';
+            }
+        }
+
+        setupAlertWithCooldown('duplicateAlert', 10);
+
+        const closeButton = document.querySelector('#duplicateAlert .alert-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => closeAlert('duplicateAlert'));
+        }
+    });
+
+</script>
+<!--search selectTags-->
+<script>
+    document.getElementById("filterForm").addEventListener("submit", function () {
+        let checkedTags = [];
+        document.querySelectorAll("input[name='tags']:checked").forEach(tag => {
+            checkedTags.push(tag.value);
+        });
+        console.log("Selected Tags:", checkedTags);
+    });
+
+    document.getElementById("tagSearch").addEventListener("input", function () {
+        let filter = this.value.toLowerCase();
+        let tags = document.querySelectorAll("#tagList .form-check");
+
+        tags.forEach(tag => {
+            let label = tag.querySelector("label").innerText.toLowerCase();
+            tag.style.display = label.includes(filter) ? "block" : "none";
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".delete-btn");
+
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const exerciseId = this.getAttribute("data-id");
+                const selectedIds = [exerciseId];
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this exercise!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/exercises/delete/${exerciseId}`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'}
+                        }).then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Exercise has been deleted successfully.",
+                                    timerProgressBar: true,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => location.reload());
+                            } else {
+                                response.json().then(data => {
+                                    if (data.title) {
+                                        Swal.fire({
+                                            icon: "warning",
+                                            title: "Cannot delete!",
+                                            html: `The exercise <strong>${data.title}</strong> is currently used in assessments.`,
+                                            timer: 10000,
+                                            timerProgressBar: true,
+                                            showConfirmButton: false
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Failed!",
+                                            text: "Failed to delete exercise. Please try again.",
+                                            timer: 10000,
+                                            timerProgressBar: true,
+                                            showConfirmButton: false
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
+<script th:inline="javascript">
+    function goToPage() {
+        var pageInput = document.getElementById('pageInput').value.trim(); // Lấy chuỗi gốc và loại bỏ khoảng trắng thừa
+        var totalPages = /*[[${totalPages}]]*/ 0;
+        var currentLanguage = /*[[${currentLanguage}]]*/ null;
+        var currentLevel = /*[[${currentLevel}]]*/ '' || '';
+        var paramTitle = /*[[${paramTitle}]]*/ '' || '';
+
+        // Kiểm tra nếu chuỗi rỗng
+        if (!pageInput) {
+            showError('Please enter a page number.');
+            return;
+        }
+
+        // Kiểm tra xem chuỗi có phải là số nguyên dương hợp lệ không
+        if (!/^\d+$/.test(pageInput)) {
+            // Kiểm tra nếu chuỗi chứa cả chữ và số
+            if (/[a-zA-Z]/.test(pageInput) && /[0-9]/.test(pageInput)) {
+                showError('Your input contains both letters and numbers. Please enter only numbers.');
+                return;
+            }
+            // Kiểm tra nếu chuỗi chỉ chứa chữ cái
+            if (/^[a-zA-Z]+$/.test(pageInput)) {
+                showError('Your input contains letters. Please enter only numbers.');
+                return;
+            }
+            // Kiểm tra nếu chuỗi là số thập phân
+            if (/^\d*\.\d+$/.test(pageInput)) {
+                showError('Your input is a decimal number. Please enter an integer.');
+                return;
+            }
+            // Kiểm tra nếu chuỗi chứa ký tự đặc biệt
+            if (/[^0-9]/.test(pageInput)) {
+                showError('Your input contains special characters. Please enter only numbers.');
+                return;
+            }
+        }
+
+        // Đến đây, pageInput là số nguyên dương hợp lệ
+        var page = parseInt(pageInput) - 1; // Chuyển thành số và trừ 1 vì page bắt đầu từ 0
+
+        // Kiểm tra nếu page nằm trong phạm vi hợp lệ
+        if (page >= 0 && page < totalPages) {
+            var url = '/exercises?page=' + page;
+            if (currentLanguage !== null && currentLanguage !== undefined && currentLanguage !== '') {
+                url += '&language=' + encodeURIComponent(currentLanguage);
+            }
+            if (currentLevel) url += '&level=' + encodeURIComponent(currentLevel);
+            if (paramTitle) url += '&title=' + encodeURIComponent(paramTitle);
+            window.location.href = url;
+        } else {
+            showError('Please enter a page number between 1 and ' + totalPages);
+        }
+    }
+
+    // Hàm hiển thị thông báo lỗi
+    function showError(message) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Invalid Input!',
+            text: message,
+            timer: 10000,  // Tự động đóng sau 10 giây
+            timerProgressBar: true,  // Hiển thị thanh thời gian chạy
+            showConfirmButton: false, // Ẩn nút "OK"
+        }).then((result) => {
+            document.getElementById('pageInput').value = '';
+            document.getElementById('pageInput').focus();
+        });
+    }
+
+    // Gắn sự kiện Enter
+    document.getElementById('pageInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            goToPage();
+        }
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const languageFilter = document.getElementById("languageFilter");
+        const levelFilter = document.getElementById("levelFilter");
+        const filterForm = document.getElementById("filterForm");
+        const searchTitle = document.getElementById("searchInput");
+        const params = new URLSearchParams(window.location.search);
+        let page = params.get('page') || sessionStorage.getItem("currentPage") || 0;
+        sessionStorage.setItem("currentPage", page);
+        console.log(searchTitle.value);
+
+        function saveFilters() {
+            sessionStorage.setItem("selectedLanguage", languageFilter.value);
+            sessionStorage.setItem("selectedLevel", levelFilter.value);
+            const selectedTags = [...document.querySelectorAll('input[name="tags"]:checked')].map(cb => cb.value);
+            sessionStorage.setItem("selectedTags", JSON.stringify(selectedTags));
+            sessionStorage.setItem("searchTitle", searchTitle.value);
+            // Đánh dấu cần áp dụng lại bộ lọc sau khi reload
+            sessionStorage.setItem("shouldFilterOnce", "true");
+        }
+
+        filterForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // 🛑 Ngăn form submit ngay
+
+            saveFilters(); // 💾 Lưu các filter vào sessionStorage
+
+            filterForm.submit(); // ✅ Gửi form lại sau khi đã lưu xong
+        });
+
+
+        function submitFormWithSave() {
+            saveFilters();
+            filterForm.submit();
+        }
+
+        // Sự kiện thay đổi bộ lọc -> Lưu & Submit
+        languageFilter.addEventListener("change", submitFormWithSave);
+        levelFilter.addEventListener("change", submitFormWithSave);
+
+        function restoreFilters() {
+            const selectedLanguage = sessionStorage.getItem("selectedLanguage") || "";
+            const selectedLevel = sessionStorage.getItem("selectedLevel") || "";
+            const searchInput = sessionStorage.getItem("searchTitle") || "";
+            const selectedTags = JSON.parse(sessionStorage.getItem("selectedTags") || "[]");
+
+            if (selectedLanguage) {
+                languageFilter.value = selectedLanguage;
+            }
+
+            if (selectedLevel) {
+                levelFilter.value = selectedLevel;
+            }
+
+            if(searchInput){
+                searchTitle.value = searchInput;
+            }
+
+            document.getElementById("currentPage").value = sessionStorage.getItem("currentPage") || 0;
+
+            document.querySelectorAll("input[name='tags']").forEach(checkbox => {
+                checkbox.checked = selectedTags.includes(checkbox.value);
+            });
+        }
+
+        restoreFilters(); // Khôi phục bộ lọc khi tải trang
+        // 🟢 Khi quay lại từ trang Edit, tự động submit lại 1 lần với bộ lọc đã chọn
+        if (sessionStorage.getItem("shouldFilterOnce") === "true") {
+            const successMessage = document.getElementById("successMessage")?.textContent.trim();
+            // 🟢 Hiển thị thông báo trước
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: successMessage,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    // 🟢 Sau khi thông báo đóng, mới submit form
+                    submitFormWithSave();
+
+                    // 🟢 Xóa shouldFilterOnce sau khi submit xong
+                    sessionStorage.removeItem("shouldFilterOnce");
+                });
+            }
+        }
+    });
+    // Hàm xóa bộ lọc và reset về giá trị mặc định
+    function clearFilters() {
+        sessionStorage.removeItem("selectedLanguage");
+        sessionStorage.removeItem("selectedLevel");
+        sessionStorage.removeItem("selectedTags");
+        sessionStorage.removeItem("currentPage");
+        sessionStorage.removeItem("searchTitle");
+        sessionStorage.removeItem("shouldFilterOnce"); // Ngăn form tự động submit lại
+        window.location.href = "/exercises";
+    }
+</script>
+<!--<script>-->
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        const languageFilter = document.getElementById("languageFilter");-->
+<!--        const levelFilter = document.getElementById("levelFilter");-->
+<!--        const filterForm = document.getElementById("filterForm");-->
+<!--        const params = new URLSearchParams(window.location.search);-->
+<!--        let page = params.get('page') || sessionStorage.getItem("currentPage") || 0;-->
+<!--        sessionStorage.setItem("currentPage", page);-->
+<!--        console.log("📌 Page từ URL hoặc sessionStorage:", sessionStorage.getItem("currentPage")); // Debugging-->
+
+<!--        function saveFilters() {-->
+<!--            sessionStorage.setItem("selectedLanguage", languageFilter.value);-->
+<!--            sessionStorage.setItem("selectedLevel", levelFilter.value);-->
+<!--            const selectedTags = [...document.querySelectorAll('input[name="tags"]:checked')].map(cb => cb.value);-->
+<!--            sessionStorage.setItem("selectedTags", JSON.stringify(selectedTags));-->
+
+<!--            // Đánh dấu cần áp dụng lại bộ lọc sau khi reload-->
+<!--            sessionStorage.setItem("shouldFilterOnce", "true");-->
+<!--        }-->
+
+
+<!--        function submitFormWithSave() {-->
+<!--            saveFilters();-->
+<!--            filterForm.submit();-->
+<!--        }-->
+
+<!--        // Sự kiện thay đổi bộ lọc -> Lưu & Submit-->
+<!--        languageFilter.addEventListener("change", submitFormWithSave);-->
+<!--        levelFilter.addEventListener("change", submitFormWithSave);-->
+
+<!--        function restoreFilters() {-->
+<!--            const selectedLanguage = sessionStorage.getItem("selectedLanguage") || "";-->
+<!--            const selectedLevel = sessionStorage.getItem("selectedLevel") || "";-->
+<!--            const selectedTags = [...document.querySelectorAll('input[name="tags"]:checked')].map(cb => cb.value);-->
+
+<!--            if (selectedLanguage) {-->
+<!--                languageFilter.value = selectedLanguage;-->
+<!--            }-->
+
+<!--            if (selectedLevel) {-->
+<!--                levelFilter.value = selectedLevel;-->
+<!--            }-->
+
+<!--            document.getElementById("currentPage").value = sessionStorage.getItem("currentPage") || 0;-->
+
+<!--            document.querySelectorAll("input[name='tags']").forEach(checkbox => {-->
+<!--                checkbox.checked = selectedTags.includes(checkbox.value);-->
+<!--            });-->
+<!--        }-->
+
+<!--        restoreFilters(); // Khôi phục bộ lọc khi tải trang-->
+<!--        // 🟢 Khi quay lại từ trang Edit, tự động submit lại 1 lần với bộ lọc đã chọn-->
+<!--        if (sessionStorage.getItem("shouldFilterOnce") === "true") {-->
+<!--            const successMessage = document.getElementById("successMessage")?.textContent.trim();-->
+<!--            // 🟢 Hiển thị thông báo trước-->
+<!--            if (successMessage) {-->
+<!--                Swal.fire({-->
+<!--                    icon: 'success',-->
+<!--                    title: successMessage,-->
+<!--                    timer: 2000,-->
+<!--                    timerProgressBar: true,-->
+<!--                    showConfirmButton: false-->
+<!--                }).then(() => {-->
+<!--// 🟢 Sau khi thông báo đóng, mới submit form-->
+<!--                    submitFormWithSave();-->
+
+<!--                    // 🟢 Xóa shouldFilterOnce sau khi submit xong-->
+<!--                    sessionStorage.removeItem("shouldFilterOnce");-->
+<!--                });-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+<!--    // Hàm xóa bộ lọc và reset về giá trị mặc định-->
+<!--    function clearFilters() {-->
+<!--        sessionStorage.removeItem("selectedLanguage");-->
+<!--        sessionStorage.removeItem("selectedLevel");-->
+<!--        sessionStorage.removeItem("selectedTags");-->
+<!--        sessionStorage.removeItem("shouldFilterOnce"); // Ngăn form tự động submit lại-->
+<!--        window.location.href = "/exercises";-->
+<!--    }-->
+<!--</script>-->
+<!--<script>-->
+<!--    const filterForm = document.getElementById('filterForm');-->
+<!--    const filterInputs = filterForm.querySelectorAll('select, input');-->
+
+<!--    filterInputs.forEach(input => {-->
+<!--        input.addEventListener('change', () => {-->
+<!--            // Reset về trang đầu-->
+<!--            const pageInput = filterForm.querySelector('input[name="page"]');-->
+<!--            if (pageInput) {-->
+<!--                pageInput.value = 0;-->
+<!--            } else {-->
+<!--                const hiddenPage = document.createElement('input');-->
+<!--                hiddenPage.type = 'hidden';-->
+<!--                hiddenPage.name = 'page';-->
+<!--                hiddenPage.value = 0;-->
+<!--                filterForm.appendChild(hiddenPage);-->
+<!--            }-->
+<!--            filterForm.submit();-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
+<script>
+    const filterForm = document.getElementById('filterForm');
+    const filterInputs = filterForm.querySelectorAll('select, input:not([type="checkbox"])');
+
+    filterInputs.forEach(input => {
+        input.addEventListener('change', () => {
+            const pageInput = filterForm.querySelector('input[name="page"]');
+            if (pageInput) {
+                pageInput.value = 0;
+            } else {
+                const hiddenPage = document.createElement('input');
+                hiddenPage.type = 'hidden';
+                hiddenPage.name = 'page';
+                hiddenPage.value = 0;
+                filterForm.appendChild(hiddenPage);
+            }
+            filterForm.submit();
         });
     });
 </script>

@@ -1,0 +1,832 @@
+<div class="main-container px-5 flex-grow-1">
+
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Reduced bottom margin -->
+        <div class="mb-3">
+            <h1 class="text-center mb-1">Assessment Report</h1>
+            <!--                Reduced font size-->
+            <span class="text-primary" style="font-size: 1rem;">
+                <i class="bi bi-box-arrow-up-right"></i>
+                ASM
+            </span>
+        </div>
+        <div class="d-flex">
+            <!-- Thêm nút Edit Score -->
+            <a href="/assessments" class="btn btn-outline-secondary" style="font-size: 0.875rem;">
+                Back to List
+            </a>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <!--            Use Information on the left, using sticky positioning-->
+        <div class="col-md-3" style="padding-right: 0; position: sticky; top: 0; font-size: 20px">
+            <h6 th:text="${attemptInfo.email}"></h6>
+            <!--                Reduced font size-->
+            <p style="margin-bottom: 0;">
+                Joined on: <span th:text="${#temporals.format(attemptInfo.attemptDate, 'dd-MM-yyyy, hh:mm a')}"></span>
+            </p>
+            <p style="margin-bottom: 0;">
+                Duration: <span
+                    th:text="${#numbers.formatInteger(attemptInfo.duration / 3600, 2)} + ':' + ${#numbers.formatInteger((attemptInfo.duration % 3600) / 60, 2)} + ':' + ${#numbers.formatInteger(attemptInfo.duration % 60, 2)}"></span>
+            </p>
+            <!--                No margin-bottom-->
+            <p style="margin-top: 0;">
+                Invite by: <span th:text="${attemptInfo.assessment.createdBy}"></span>
+            </p>
+        </div>
+        <!--            Report-->
+        <div class="col-md-9">
+            <div class="row">
+                <!--                    Score card-->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100" style="font-size: 18px">
+                        <!--                            Card header-->
+                        <div class="card-header d-flex"
+                             style="background-color: #20c997; color: white; font-weight: bold; text-align: center; padding: 10px;">
+                            <span>Result</span>
+                        </div>
+                        <!--                            Card body-->
+                        <div class="card-body"
+                             style="background-color: #e8f5f4; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; height: 100%;">
+                            <!--                                Score Quiz percent-->
+                            <div class="d-flex justify-content-between align-items-center w-100"
+                                 style="text-align: center;">
+                                <span>Score Quiz</span>
+                                <span style="color: #6c757d;"
+                                      th:text="${attemptInfo.scoreQuiz}"></span>
+                            </div>
+                            <hr class="w-100 my-1">
+                            <!--                                Score code percent-->
+                            <div class="d-flex justify-content-between align-items-center w-100"
+                                 style="text-align: center;">
+                                <span>Score Exercise</span>
+                                <span style="color: #6c757d;"
+                                      th:text="${attemptInfo.scoreEx }"></span>
+                            </div>
+                            <hr class="w-100 my-1">
+                            <!--                                Personality test-->
+                            <div class="d-flex justify-content-between align-items-center w-100"
+                                 style="text-align: center;">
+                                <span>Score Assessment</span>
+                                <span style="color: #6c757d;"
+                                      th:text="${attemptInfo.scoreAss}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--                    Cheating card-->
+                <div class="col-md-6">
+                    <div class="card shadow-sm" style="font-size: 18px">
+                        <div class="card-header d-flex justify-content-between align-items-center"
+                             style="background-color: #6c757d; color: white; font-weight: bold; text-align: center; padding: 10px;">
+                            <span style="width: 20%;">Cheating</span>
+                        </div>
+                        <div class="card-body">
+                            <!--                                Leaving tab-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    Leaving tab
+                                </span>
+                                <span style="color: #6c757d;">
+                                    <span th:text="${tabLeaveCount}"></span> times
+                                </span>
+                            </div>
+                            <hr class="my-1">
+                            <!--                                Pasted check-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>
+                                    <i class="fas fa-cut me-2"></i>
+                                    Pasted
+                                    <span style="font-style: italic; color: #6c757d;">from external sources</span>
+                                </span>
+                                <span style="color: #6c757d;">
+                                    <span th:text="${pasteCount}"></span> times
+                                </span>
+                            </div>
+                            <hr class="my-1">
+                            <!--                                Copied check-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>
+                                    <i class="bi bi-clipboard-check-fill"></i>
+                                    Copied
+                                    <span style="font-style: italic; color: #6c757d;">from internal sources</span>
+                                </span>
+                                <span style="color: #6c757d;">
+                                    <span th:text="${copyCount}"></span> times
+                                </span>
+                            </div>
+                            <hr class="my-1">
+                            <!--                                AI usage-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>
+                                    <i class="fas fa-robot me-2"></i>
+                                    AI usage
+                                </span>
+                                <span style="color: #6c757d;">Not detected</span>
+                            </div>
+                            <hr class="my-1">
+                            <!--                                Violation Face Count-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>
+                                    <i class="fas fa-user-secret me-2"></i>
+                                    Violation Face Count
+                                    <i class="fas fa-info-circle" style="color: #6c757d;"></i>
+                                </span>
+                                <span style="color: #6c757d;">
+                                    <span th:text="${violationFaceCount}"></span> times
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--                Quiz Result Card-->
+            <div class="col-md-12 mb-4" style="margin-top: 20px">
+                <div class="card card-body d-flex align-items-left mb-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <!--                            Quiz Title and Details-->
+                        <div>
+                            <p class="mb-0 d-flex align-items-center">
+                                <b style="line-height: 1;">Attempt</b>
+                                <button type="button" class="btn btn-link p-0 ms-1 d-flex align-items-center"
+                                        style="font-size: 0.875rem; color: #6c757d; text-decoration: none; box-shadow: none; line-height: 1; position: relative; top: 1px;"
+                                        data-bs-toggle="modal" data-bs-target="#editScoreModal">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                            </p>
+                            <div class="d-flex align-items-center"
+                                 th:switch="${#strings.toUpperCase(assessment.assessmentType.name)}">
+
+                                <th:block th:case="'QUIZ'">
+                                    <a href="#" class="btn btn-link p-0" data-bs-toggle="modal"
+                                       data-bs-target="#QuizDetailsModal">
+                                        Quiz Details
+                                    </a>
+                                </th:block>
+
+                                <th:block th:case="'ASSIGNMENT'">
+                                    <a href="#" class="btn btn-link p-0" data-bs-toggle="modal"
+                                       data-bs-target="#ExerciseDetailsModal">
+                                        Exercise Details
+                                    </a>
+                                </th:block>
+
+                                <th:block th:case="'QUIZ & ASSIGNMENT'">
+                                    <a href="#" class="btn btn-link p-0" data-bs-toggle="modal"
+                                       data-bs-target="#QuizDetailsModal">
+                                        Quiz Details
+                                    </a>
+                                    <span class="mx-2">|</span>
+                                    <a href="#" class="btn btn-link p-0" data-bs-toggle="modal"
+                                       data-bs-target="#ExerciseDetailsModal">
+                                        Exercise Details
+                                    </a>
+                                </th:block>
+
+                                <th:block th:case="*">
+                                </th:block>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="AttemptDetailModal" tabindex="-1" aria-labelledby="AttemptDetailsLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 80%; width: 80%;">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center" style="background-color: #f0f0f0;">
+                    <h5 class="modal-title me-auto" id="AttemptDetailsLabel">Attempt Details</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <h4 class="fw-bold text-secondary mb-3">
+                            <i class="fas fa-list me-2"></i>Quiz Details
+                        </h4>
+                        <div class="card shadow-lg border-0 mb-4">
+                            <div class="card-body">
+                                <div th:each="question, iterStat : ${questions}" class="mb-4 border-bottom pb-3">
+                                    <p class="fw-bold">
+                                        <span th:text="${iterStat.count}"></span>.
+                                        <span
+                                                th:text="${question?.questionText ?: 'Question text not available'}">Question
+                                            text</span>
+                                    </p>
+                                    <ul class="list-group">
+                                        <li class="list-group-item"
+                                            th:each="ans : ${questionAnswerOptionsMap[question.id] != null ? questionAnswerOptionsMap[question.id] : T(java.util.Collections).emptyList()}">
+                                            <span th:text="${ans.optionText}"></span>
+                                            <span th:if="${userAnswersMap != null
+                                                  and userAnswersMap[question.id] != null
+                                                  and #lists.contains(userAnswersMap[question.id], ans.id)}"
+                                                  class="badge ms-2"
+                                                  style="background-color: #85C8FF;">Your Answer</span>
+                                            <span th:if="${ans.isCorrect}" class="badge bg-success ms-2">Correct</span>
+                                        </li>
+                                        <li class="list-group-item text-muted"
+                                            th:if="${#lists.isEmpty(questionAnswerOptionsMap[question.id])}">
+                                            No answers assigned.
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold text-secondary mb-3">
+                            <i class="fas fa-list me-2"></i>Exercise Attempts
+                        </h4>
+                        <div class="list-group">
+                            <div th:if="${studentExerciseAttempts == null or #lists.isEmpty(studentExerciseAttempts)}">
+                                <p class="text-muted">No exercise attempts found.</p>
+                            </div>
+                            <div th:each="exAttempt : ${studentExerciseAttempts}" class="list-group-item">
+                                <p>
+                                    <strong>Score:</strong> <span th:text="${exAttempt.score_exercise}">0</span>
+                                    &nbsp;|&nbsp;
+                                    <strong>Date:</strong>
+                                    <span
+                                            th:text="${#temporals.format(exAttempt.attemptDate, 'dd-MM-yyyy hh:mm a')}">Date</span>
+                                </p>
+                                <div class="submitted-code">
+                                    <h6>Submitted Code:</h6>
+                                    <pre class="language-java" tabindex="0">
+<code th:text="${exAttempt.submitted_code}">Submitted code here</code>
+                                </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="QuizDetailsModal" tabindex="-1" aria-labelledby="quizDetailsModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 80%; width: 80%;">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header d-flex align-items-center" style="background-color: #f0f0f0;">
+                    <h5 class="modal-title me-auto" id="quizDetailsModalLabel">Quiz Details</h5>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body">
+                            <div th:each="question, iterStat : ${questions}" class="mb-4 border-bottom pb-3">
+                                <p class="fw-bold">
+                                    <span th:text="${iterStat.count}"></span>.
+                                <pre style="white-space: normal; display: inline; margin: 0;" class="question-text" th:utext="${question.questionText}"></pre>
+                                </p>
+                                <ul class="list-group">
+                                    <li class="list-group-item"
+                                        th:each="ans : ${questionAnswerOptionsMap[question.id] != null ? questionAnswerOptionsMap[question.id] : T(java.util.Collections).emptyList()}">
+                                        <span th:text="${ans.optionText}"></span>
+                                        <span th:if="${userAnswersMap != null
+                                              and userAnswersMap[question.id] != null
+                                              and #lists.contains(userAnswersMap[question.id], ans.id)}"
+                                              class="badge ms-2" style="background-color: #85C8FF;">
+                                        Your Answer
+                                    </span>
+                                        <span th:if="${ans.isCorrect}" class="badge bg-success ms-2">
+                                        Correct
+                                    </span>
+                                    </li>
+                                    <!-- If there are no answer options -->
+                                    <li class="list-group-item text-muted"
+                                        th:if="${#lists.isEmpty(questionAnswerOptionsMap[question.id])}">
+                                        This is an essay question.
+                                    </li>
+                                    <li class="list-group-item"
+                                        th:if="${userAnswerTexts != null and userAnswerTexts.containsKey(question.id)}">
+                                        <span th:text="${userAnswerTexts.get(question.id)}"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ExerciseDetailsModal" tabindex="-1" aria-labelledby="ExerciseDetailsModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-custom" style="max-width: 80%; width: 80%;">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom d-flex align-items-center">
+                    <h5 class="modal-title me-auto" id="ExerciseDetailsModalLabel">Exercise Attempts</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <p class="description-text" style="font-size: 14px; color: #6c757d;">
+                            Viewing user's exercise attempts
+                        </p>
+                        <div class="list-group">
+                            <div th:if="${studentExerciseAttempts == null or #lists.isEmpty(studentExerciseAttempts)}">
+                                <p class="text-muted">No exercise attempts found.</p>
+                            </div>
+                            <div th:each="attempt : ${studentExerciseAttempts}" class="list-group-item">
+                                <p>
+                                    <strong>Score:</strong> <span th:text="${attempt.score_exercise}">0</span>
+                                    &nbsp;|&nbsp;
+                                    <strong>Date:</strong>
+                                    <span
+                                            th:text="${#temporals.format(attempt.attemptDate, 'dd-MM-yyyy hh:mm a')}">Date</span>
+                                </p>
+                                <div class="submitted-code">
+                                    <h6>Submitted Code:</h6>
+                                    <pre class="language-java" tabindex="0">
+<code th:text="${attempt.submitted_code}">Submitted code here</code>
+                                </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- **MODAL STRUCTURE - Add this right before the closing `</div>` of `main-container` or at the end of `body`** -->
+    <div class="modal fade" id="editScoreModal" tabindex="-1" aria-labelledby="editScoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editScoreModalLabel">Edit Assessment Score</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- **EDIT SCORE FORM - Paste the content of the form from `editscore.html` here** -->
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You are editing scores for assessment attempt
+                    </div>
+                    <!-- Thêm alert hiển thị điểm số hiện tại tại đây -->
+                    <div class="alert alert-secondary" role="alert">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Current Exercise Score:</strong> <span
+                                        id="currentScoreEx">Loading...</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Current Quiz Score:</strong> <span
+                                        id="currentScoreQuiz">Loading...</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="editScoreForm" class="mt-4">
+                        <input type="hidden" id="attemptId" th:value="${attemptInfo.id}">
+
+                        <div class="mb-4">
+                            <label for="scoreEx" class="form-label">Exercise Score</label>
+                            <div class="input-group score-input">
+                                <input type="number" class="form-control" id="scoreEx"
+                                       placeholder="Enter assignment score" min="0" max="100" step="0.1"
+                                       aria-describedby="scoreExHelp">
+
+                            </div>
+                            <div id="scoreExHelp" class="form-text">Enter a score between 0 and 100</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="scoreQuiz" class="form-label">Quiz Score</label>
+                            <div class="input-group score-input">
+                                <input type="number" class="form-control" id="scoreQuiz" placeholder="Enter quiz score"
+                                       min="0" max="100" step="0.1" aria-describedby="scoreQuizHelp">
+
+                            </div>
+                            <div id="scoreQuizHelp" class="form-text">Enter a score between 0 and 100</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="comment" class="form-label">Reason for Score Adjustment <span
+                                    class="text-danger">*</span></label>
+                            <textarea class="form-control" id="comment" rows="4"
+                                      placeholder="Please provide a detailed explanation for this score adjustment..."
+                                      required></textarea>
+                            <div class="form-text">This will be recorded in the edit history</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="history-section d-none" id="historySection">
+                        <h4><i class="fas fa-history me-2"></i>Score Edit History</h4>
+                        <div id="historyContent" class="mt-3">
+                            <!-- History items will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Results and notifications -->
+                    <div id="resultContainer" class="mt-4 d-none">
+                        <div class="alert" id="resultAlert" role="alert"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- You can add footer buttons here if needed -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- **END MODAL STRUCTURE** -->
+
+</div>
+
+<button onclick="scrollToTop()" id="scrollToTopButton" title="Go to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+    // ... (rest of your existing scripts from viewreport.html) ...
+    // Show/hide scrollToTopButton on scroll
+    window.onscroll = function () {
+        const scrollToTopButton = document.getElementById("scrollToTopButton");
+        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+            scrollToTopButton.style.display = "flex";
+        } else {
+            scrollToTopButton.style.display = "none";
+        }
+    };
+
+    function scrollToTop() {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    // **INCLUDE EDIT SCORE SCRIPTS HERE -  Copy from `editscore.html` and paste below**
+    document.addEventListener('DOMContentLoaded', function () {
+        // ... (JavaScript code from editscore.html inside this block) ...
+        // **IMPORTANT:  Adjust any selectors if necessary to work within the modal context**
+        const editScoreForm = document.getElementById('editScoreForm'); // Should be fine as IDs are unique
+        const fetchHistoryBtn = document.getElementById('fetchHistoryBtn');
+        const historySection = document.getElementById('historySection');
+        const historyContent = document.getElementById('historyContent');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultAlert = document.getElementById('resultAlert');
+        document.getElementById('editScoreModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            // Nếu button có data attribute chứa attemptId, lấy và cập nhật vào input hidden
+            if (button && button.getAttribute('data-attempt-id')) {
+                document.getElementById('attemptId').value = button.getAttribute('data-attempt-id');
+            }
+
+            // Gọi fetch dữ liệu khi modal mở
+            fetchCurrentScores();
+        });
+
+        // Function to show result message
+        function showResult(message, isSuccess) {
+            resultContainer.classList.remove('d-none');
+            resultAlert.classList.remove('alert-success', 'alert-danger');
+            resultAlert.classList.add(isSuccess ? 'alert-success' : 'alert-danger');
+            resultAlert.innerHTML = message;
+
+            // Scroll to the result - Scroll within modal if needed, or to the main view report
+            resultContainer.scrollIntoView({behavior: 'smooth'}); // Scrolls the whole page
+
+            // Hide the message after 5 seconds if it's a success
+            if (isSuccess) {
+                setTimeout(() => {
+                    resultContainer.classList.add('d-none');
+                }, 5000);
+            }
+        }
+
+        // Form submission handler
+        editScoreForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const attemptId = document.getElementById('attemptId').value;
+            const scoreEx = document.getElementById('scoreEx').value;
+            const scoreQuiz = document.getElementById('scoreQuiz').value;
+            const comment = document.getElementById('comment').value;
+            document.getElementById('editScoreModal').addEventListener('show.bs.modal', function (event) {
+                // Reset giá trị loading
+                document.getElementById('currentScoreEx').textContent = 'Loading...';
+                document.getElementById('currentScoreQuiz').textContent = 'Loading...';
+
+                // Lấy attempt ID từ button nếu có
+                const button = event.relatedTarget;
+                if (button && button.getAttribute('data-attempt-id')) {
+                    document.getElementById('attemptId').value = button.getAttribute('data-attempt-id');
+                }
+
+                // Gọi API để lấy điểm hiện tại
+                const attemptId = document.getElementById('attemptId').value;
+                if (attemptId) {
+                    fetchCurrentScores();
+                } else {
+                    document.getElementById('currentScoreEx').textContent = 'Error: Missing ID';
+                    document.getElementById('currentScoreQuiz').textContent = 'Error: Missing ID';
+                }
+            });
+            if (!comment.trim()) {
+                showResult('<i class="fas fa-exclamation-triangle me-2"></i> Please provide a reason for editing the score.', false);
+                return;
+            }
+
+            const data = {
+                newScoreEx: scoreEx ? parseFloat(scoreEx) : null,
+                newScoreQuiz: scoreQuiz ? parseFloat(scoreQuiz) : null,
+                comment: comment.trim()
+            };
+
+            // Validate at least one score is provided
+            if (data.scoreEx === null && data.scoreQuiz === null) {
+                showResult('<i class="fas fa-exclamation-triangle me-2"></i> Please provide at least one score value.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/score/edit/${attemptId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult('<i class="fas fa-check-circle me-2"></i> Score updated successfully!', true);
+
+                    // Clear form
+                    document.getElementById('comment').value = '';
+
+                    // Fetch updated history after successful edit
+                    fetchScoreHistory();
+
+                    // **Optionally update the displayed scores in the main viewreport page here if needed**
+                    fetchCurrentScoresInViewReport(); // Function to update scores in viewreport
+
+                } else {
+                    showResult(`<i class="fas fa-exclamation-circle me-2"></i> Error: ${result.error || 'Failed to update score'}`, false);
+                }
+            } catch (error) {
+                showResult(`<i class="fas fa-exclamation-circle me-2"></i> Error: ${error.message || 'An unexpected error occurred'}`, false);
+            }
+        });
+
+        // Fetch history button handler
+        fetchHistoryBtn.addEventListener('click', function () {
+            fetchScoreHistory();
+        });
+
+        // Function to fetch score history
+        async function fetchScoreHistory() {
+            const attemptId = document.getElementById('attemptId').value;
+
+            try {
+                const response = await fetch(`/api/score/history/${attemptId}`);
+
+                if (response.ok) {
+                    const historyData = await response.json();
+
+                    // Show history section
+                    historySection.classList.remove('d-none');
+
+                    // Display history data
+                    if (historyData && historyData.length > 0) {
+                        let historyHtml = '';
+
+                        historyData.forEach((item, index) => {
+                            historyHtml += `
+                                    <div class="history-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Edit #${historyData.length - index}</strong>
+                                            <span class="text-muted">${new Date(item.editDate).toLocaleString()}</span>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <div class="mb-1"><strong>Assignment Score:</strong> ${item.scoreEx !== null ? item.scoreEx + '%' : 'No change'}</div>
+                                                <div><strong>Quiz Score:</strong> ${item.scoreQuiz !== null ? item.scoreQuiz + '%' : 'No change'}</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div><strong>Changed by:</strong> ${item.editedBy || 'System'}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <strong>Reason:</strong>
+                                            <p class="mb-0">${item.comment || 'No reason provided'}</p>
+                                        </div>
+                                    </div>
+                                `;
+                        });
+
+                        historyContent.innerHTML = historyHtml;
+                    } else {
+                        historyContent.innerHTML = '<div class="alert alert-info">No edit history found for this assessment.</div>';
+                    }
+                } else {
+                    const errorData = await response.json();
+                    historyContent.innerHTML = `<div class="alert alert-danger">Error fetching history: ${errorData.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                historyContent.innerHTML = `<div class="alert alert-danger">Error: ${error.message || 'Failed to fetch history'}</div>`;
+            }
+        }
+
+        // Initialize the form by fetching the current scores
+        // Thay thế toàn bộ hàm fetchCurrentScores hiện tại bằng hàm này
+        async function fetchCurrentScores() {
+            const attemptId = document.getElementById('attemptId').value;
+
+            try {
+                const response = await fetch(`/api/score/current/${attemptId}`);
+
+                if (response.ok) {
+                    const scoreData = await response.json();
+
+                    // Cập nhật hiển thị điểm Exercise
+                    if (scoreData.scoreEx !== null && scoreData.scoreEx !== undefined) {
+                        document.getElementById('currentScoreEx').textContent = scoreData.scoreEx;
+                        document.getElementById('scoreEx').value = scoreData.scoreEx;
+                    } else {
+                        document.getElementById('currentScoreEx').textContent = 'Not set';
+                        document.getElementById('scoreEx').value = '';
+                    }
+
+                    // Cập nhật hiển thị điểm Quiz
+                    if (scoreData.scoreQuiz !== null && scoreData.scoreQuiz !== undefined) {
+                        document.getElementById('currentScoreQuiz').textContent = scoreData.scoreQuiz;
+                        document.getElementById('scoreQuiz').value = scoreData.scoreQuiz;
+                    } else {
+                        document.getElementById('currentScoreQuiz').textContent = 'Not set';
+                        document.getElementById('scoreQuiz').value = '';
+                    }
+                } else {
+                    // Xử lý lỗi
+                    document.getElementById('currentScoreEx').textContent = 'Error loading';
+                    document.getElementById('currentScoreQuiz').textContent = 'Error loading';
+                    console.error('API error:', response.status);
+                }
+            } catch (error) {
+                // Xử lý lỗi kết nối
+                document.getElementById('currentScoreEx').textContent = 'Connection error';
+                document.getElementById('currentScoreQuiz').textContent = 'Connection error';
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // **NEW FUNCTION - To update scores displayed in the main viewreport page**
+        async function fetchCurrentScoresInViewReport() {
+            const attemptId = document.getElementById('attemptId').value;
+            // Assuming you have spans in your main viewreport page to display scores, e.g.,
+            const viewReportScoreQuizSpan = document.querySelector('.card-body span[th\\:text="${attemptInfo.scoreQuiz}"]'); // Adjust selector if needed
+
+            try {
+                const response = await fetch(`/api/score/current/${attemptId}`);
+                if (response.ok) {
+                    const scoreData = await response.json();
+                    if (scoreData.scoreQuiz !== null && scoreData.scoreQuiz !== undefined && viewReportScoreQuizSpan) {
+                        viewReportScoreQuizSpan.textContent = scoreData.scoreQuiz; // Update the quiz score in viewreport
+                        // You can update other score elements in viewreport similarly if needed
+                    }
+                }
+            } catch (error) {
+                console.error("Error updating scores in viewreport:", error);
+            }
+        }
+    });
+    // **END INCLUDE EDIT SCORE SCRIPTS**
+
+
+</script>
+
+<style>
+    /* ... (rest of your existing styles from viewreport.html) ... */
+
+    /* **INCLUDE EDIT SCORE STYLES HERE - Copy from `editscore.html` and paste below** */
+    .edit-score-container {
+        /*  You might not need this container class in modal context */
+        /* max-width: 700px;  Adjust if needed for modal */
+        /* margin: 40px auto;  Remove or adjust margin for modal */
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        /* Adjust padding for modal */
+    }
+
+    .header-section {
+        /* You might not need this header section class in modal context */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    .score-input {
+        position: relative;
+    }
+
+    .score-input .input-group-text {
+        background-color: #f8f9fa;
+    }
+
+    .history-section {
+        margin-top: 30px;
+        border-top: 1px solid #dee2e6;
+        padding-top: 20px;
+    }
+
+    .history-item {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+
+    .btn-back {
+        /* You might not need btn-back class in modal context */
+        color: #6c757d;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-back:hover {
+        color: #495057;
+    }
+
+    .btn-back i {
+        margin-right: 5px;
+    }
+
+    .percentage-suffix {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+    }
+
+    /* Scroll-to-top button */
+    #scrollToTopButton {
+        position: fixed;
+        bottom: 3vh;
+        right: 20px;
+        display: none;
+        /* Initially hidden */
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        color: white;
+        border: none;
+        outline: none;
+        border-radius: 50%;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        justify-content: center;
+        align-items: center;
+        opacity: 0.8;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 80;
+    }
+
+    #scrollToTopButton:hover {
+        transform: scale(1.2);
+        opacity: 1;
+        background: linear-gradient(45deg, #2575fc, #6a11cb);
+    }
+
+
+    /* **END INCLUDE EDIT SCORE STYLES** */
+</style>

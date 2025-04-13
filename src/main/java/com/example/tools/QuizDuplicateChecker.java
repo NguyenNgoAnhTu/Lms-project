@@ -2,11 +2,13 @@ package com.example.tools;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
-import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.store.RAMDirectory;
+
 import java.io.IOException;
 import java.util.*;
 

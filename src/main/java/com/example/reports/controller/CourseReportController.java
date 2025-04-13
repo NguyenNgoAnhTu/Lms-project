@@ -27,6 +27,17 @@ public class CourseReportController {
         return "layout";
     }
 
+    @GetMapping("/performance")
+    public String coursePerformance(Model model) {
+
+        // add attribute for layout
+        model.addAttribute("content","reports/course/course_perform");
+
+        return "layout";
+    }
+
+
+
 //    @GetMapping("/course-overview")
 //    public String getTotalCourses(Model model) {
 //        List<Department> departments = departmentService.getAllDepartments(); // Fetch all departments

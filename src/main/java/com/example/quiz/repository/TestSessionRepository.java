@@ -39,4 +39,8 @@ public interface TestSessionRepository extends JpaRepository<TestSession, Long> 
             "ORDER BY ts.startTime DESC")
     List<TestSession> findByUserAndQuizOrderByStartTimeDesc(@Param("user") User user, @Param("quizId") Long quizId);
 
+    @Query("SELECT ts FROM TestSession ts WHERE ts.studentAssessmentAttempt.id = :attemptId")
+    Optional<TestSession> findByStudentAssessmentAttemptId(@Param("attemptId") Long attemptId);
+
+
 }

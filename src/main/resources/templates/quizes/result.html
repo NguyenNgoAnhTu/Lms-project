@@ -23,6 +23,26 @@
             background-color: #ffffff !important;
             color: #000000 !important;
         }
+
+        .back-button {
+            position: fixed;
+            top: 80px; /* Điều chỉnh khoảng cách từ top */
+            left: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .back-button.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -32,7 +52,7 @@
 
   <!-- ✅ Nút Back để quay lại danh sách Quiz -->
   <div class="mb-3">
-    <a th:href="@{/quizes}" class="btn btn-primary">
+    <a th:href="@{/quizes}" class="btn btn-primary back-button">
       <i class="bi bi-arrow-left"></i> Back to Quizzes
     </a>
   </div>
@@ -113,5 +133,26 @@
   </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const backButton = document.querySelector('.back-button');
+        let lastScrollTop = 0;
+        
+        // Hiển thị nút khi scroll xuống 100px
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 100) {
+                backButton.classList.add('visible');
+            } else {
+                backButton.classList.remove('visible');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+    });
+</script>
+
 </body>
 </html>
+<!--aa-->

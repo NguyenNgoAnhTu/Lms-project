@@ -13,7 +13,7 @@
                     <div id="courseReports" class="accordion-collapse collapse show" aria-labelledby="courseReportsHeader" data-bs-parent="#reportsAccordion">
                         <div class="accordion-body">
                             <a th:href="@{/course-reports/overview}" class="btn btn-outline-primary btn-lg mb-3 w-100">Course Overview</a>
-                            <a th:href="@{/course-reports/completion}" class="btn btn-outline-primary btn-lg mb-3 w-100">Course Completion</a>
+                            <a th:href="@{/course-reports/performance}" class="btn btn-outline-primary btn-lg mb-3 w-100">Course Performance</a>
                             <a th:href="@{/course-reports/material-usage}" class="btn btn-outline-primary btn-lg mb-3 w-100">Material Usage</a>
                             <a th:href="@{/course-reports/material-type-distribution}" class="btn btn-outline-primary btn-lg w-100">Material Type Distribution</a>
                             <a th:href="@{/course-reports/duration}" class="btn btn-outline-primary btn-lg w-100">Course Duration</a>
@@ -38,6 +38,7 @@
                     <div id="studentReports" class="accordion-collapse collapse" aria-labelledby="studentReportsHeader" data-bs-parent="#reportsAccordion">
                         <div class="accordion-body">
                             <a th:href="@{/user-reports/student-enrollment}" class="btn btn-outline-success btn-lg mb-3 w-100">Student Enrollment</a>
+                            <a th:href="@{/studentReports/attendance}" class="btn btn-outline-success btn-lg mb-3 w-100">Student Attendance</a>
                             <a th:href="@{/user-reports/user-progress}" class="btn btn-outline-success btn-lg mb-3 w-100">User Progress</a>
                         </div>
                     </div>
@@ -76,6 +77,44 @@
                             <a th:href="@{/user-reports/user-overview}" class="btn btn-outline-warning btn-lg mb-3 w-100">User Overview</a>
                             <a th:href="@{/user-reports/user-statistics}" class="btn btn-outline-warning btn-lg mb-3 w-100">User Statistics</a>
                             <a th:href="@{/user-reports/role}" class="btn btn-outline-warning btn-lg mb-3 w-100">Role</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <!-- Course Reports Card -->
+            <!-- Assessment Reports Card -->
+            <div class="col-md-3">
+                <div class="accordion-item shadow border rounded">
+                    <h2 class="accordion-header text-center" id="gradeReportsHeader">
+                        <button class="btn btn-info text-uppercase fw-bold text-white mx-auto w-100 py-4" type="button" data-bs-toggle="collapse" data-bs-target="#gradeReports" aria-expanded="false" aria-controls="gradeReports">
+                            Grade Reports
+                        </button>
+                    </h2>
+                    <div id="gradeReports" class="accordion-collapse collapse" aria-labelledby="gradeReportsHeader" data-bs-parent="#reportsAccordion">
+                        <div class="accordion-body">
+
+                            <a th:href="@{/gradereports/notificationsAlerts}" class="btn btn-outline-warning btn-lg mb-3 w-75">Notifications and Alerts</a>
+                            <a th:href="@{/gradereports/studentSelfService}" class="btn btn-outline-warning btn-lg mb-3 w-75">Student Self-Service</a>
+                            <a th:href="@{/gradereports/overview}" class="btn btn-outline-warning btn-lg mb-3 w-75">Overview</a>
+                            <a th:href="@{/gradereports/grade}" class="btn btn-outline-warning btn-lg mb-3 w-75">Student Grade</a>
+                            <a th:href="@{/gradereports/gradeDetails}" class="btn btn-outline-warning btn-lg mb-3 w-75">Grade Details</a>
+                            <a th:href="@{/gradereports/assessment}" class="btn btn-outline-warning btn-lg mb-3 w-75">Assessment</a>
+                            <a th:href="@{/gradereports/weightedGrade}" class="btn btn-outline-warning btn-lg mb-3 w-75">Weighted Grade</a>
+                            <a th:href="@{/gradereports/inputScore}" class="btn btn-outline-warning btn-lg mb-3 w-75">Input Score</a>
+                            <a th:href="@{/gradereports/grade}" class="btn btn-outline-warning btn-lg mb-3 w-75">Student Grade</a>
+                            <a th:href="@{/gradereports/individualStudent}" class="btn btn-outline-warning btn-lg mb-3 w-75">Comprehensive Individual Student </a>
+                            <a th:href="@{/gradereports/classComparison}" class="btn btn-outline-warning btn-lg mb-3 w-75">Class Comparison</a>
+                            <a th:href="@{/gradereports/gradeDistribution}" class="btn btn-outline-warning btn-lg mb-3 w-75">Grade Distribution </a>
+                            <a th:href="@{/gradereports/assessmentAnalysis}" class="btn btn-outline-warning btn-lg mb-3 w-75">Assessment Analysis</a>
+                            <a th:href="@{/gradereports/classPerformance}" class="btn btn-outline-warning btn-lg mb-3 w-75">Class Performance Summary</a>
+                            <a th:href="@{/gradereports/studentProgress}" class="btn btn-outline-warning btn-lg mb-3 w-75">Student Progress</a>
+                            <a th:href="@{/gradereports/assessmentAnalysis}" class="btn btn-outline-warning btn-lg mb-3 w-75">Assessment Analysis Report</a>
+
+
                         </div>
                     </div>
                 </div>

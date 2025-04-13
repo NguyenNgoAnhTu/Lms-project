@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,21 +21,43 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.headers().frameOptions().sameOrigin();
         http
                 .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/register", "/otp", "/verify-otp","/materials/**").permitAll()
+                        .requestMatchers("/js/**", "/models/**").permitAll()
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/otp",
+                                "/verify-otp",
+                                "/assessments/submit/**",
+                                "/materials/**",
+                                "/judgement/assessment/code_space/**",
+                                "/exercises/submit/120/0/0/**",
+                                "/judgement/**",
+                                "/assessments/expired-link",
+                                "/assessments/invite/**",
+                                "/assessments/invalid-link",
+                                "/assessments/already-assessed"
+                        ).permitAll()
+                        .requestMatchers("/exercises/profile/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception
+                        -> exception.accessDeniedPage("/exercises/access-denied")
+                ) // config auth
                 .formLogin(form -> form.loginPage("/login").permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -49,6 +72,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {

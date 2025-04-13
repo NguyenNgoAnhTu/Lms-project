@@ -24,7 +24,7 @@ public class Course {
     private String name;
     private String code;
 
-    @Lob
+    //@Lob
     private String description;  // Rich text field equivalent in Spring Boot
 
     @ManyToOne
@@ -78,10 +78,10 @@ public class Course {
     public String toString() {
         return name;
     }
-    // group 1
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Quiz> quizzes;
-// group 1
+    // group 1
     public void addQuiz(Quiz quiz) {
         quizzes.add(quiz);
         quiz.setCourse(this);

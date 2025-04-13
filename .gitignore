@@ -43,9 +43,8 @@ logs/**
 *.mv.db
 logs/*.log
 
-lms_project/data/
-
-
-lms_project/data/postgresql/
-lms_project/data/postgresql
-
+lms_project/
+lms_project_dev/
+nginx/
+lms_project_intern/
+*.ps1
