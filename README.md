@@ -1,7 +1,7 @@
 #Link:
 -[ ] [Deployment](https://java02.fsa.io.vn)
 
-username : superadmin
+username : superadmin  
 password : 123456
 
 
