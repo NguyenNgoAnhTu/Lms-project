@@ -1,4 +1,8 @@
-# Group_02
+#Link:
+-[ ] [Deployment](https://java02.fsa.io.vn)
+
+username : superadmin
+password : 123456
 
 
 
